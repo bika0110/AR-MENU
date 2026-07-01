@@ -124,15 +124,17 @@ header{
 .hero-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
 .hero-particle{
   position:absolute;border-radius:50%;
-  background:radial-gradient(circle,rgba(201,168,76,.6),rgba(201,168,76,0));
+  background:rgba(201,168,76,.7);
+  box-shadow:0 0 6px 2px rgba(201,168,76,.4),0 0 14px 4px rgba(201,168,76,.15);
   animation:particleFloat linear infinite;
   opacity:0;
 }
 @keyframes particleFloat{
-  0%{transform:translateY(0) scale(0);opacity:0}
-  10%{opacity:1}
-  90%{opacity:.6}
-  100%{transform:translateY(-120px) scale(1);opacity:0}
+  0%{transform:translateY(0) scale(.3);opacity:0}
+  8%{opacity:.9}
+  50%{opacity:.7}
+  85%{opacity:.4}
+  100%{transform:translateY(-160px) scale(.8);opacity:0}
 }
 .hero>*{position:relative;z-index:1}
 .restaurant-name{
@@ -1588,18 +1590,18 @@ window.addEventListener('popstate',()=>{
 (function initParticles(){
   const container = document.getElementById('heroParticles');
   if(!container) return;
-  const count = window.innerWidth < 500 ? 10 : 18; // fewer on mobile
+  const count = window.innerWidth < 500 ? 12 : 20;
   for(let i = 0; i < count; i++){
     const p = document.createElement('div');
     p.className = 'hero-particle';
-    const size = Math.random() * 4 + 2; // 2-6px
+    const size = Math.random() * 6 + 4; // 4-10px
     const left = Math.random() * 100;
-    const delay = Math.random() * 6;
-    const duration = Math.random() * 4 + 4; // 4-8s
+    const delay = Math.random() * 8;
+    const duration = Math.random() * 5 + 5; // 5-10s
     p.style.cssText = `
       width:${size}px;height:${size}px;
       left:${left}%;
-      bottom:${Math.random() * 30}%;
+      bottom:${Math.random() * 60}%;
       animation-delay:${delay}s;
       animation-duration:${duration}s;
     `;
