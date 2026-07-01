@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Smart Menu AR — See Every Dish in 3D Before You Order</title>
+<meta name="description" content="Smart Menu AR — India's first 3D & AR restaurant menu. Scan, See in 3D, Order with Confidence. No app required.">
+<meta property="og:title" content="Smart Menu AR — 3D Restaurant Menu">
+<meta property="og:description" content="See every dish in 3D before you order. Augmented Reality dining experience.">
+<meta property="og:image" content="logo-square.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="icon" type="image/png" href="logo-square.png">
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+<!-- Eruda mobile DevTools: only loads when ?debug=1 is in URL -->
+<script>
+(function(){
+  if(location.search.indexOf('debug=1') === -1) return;
+  var T0 = performance.now();
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/eruda@3.0.1/eruda.min.js';
+  s.onload = function(){
+    eruda.init();
+    // Replay any logs from previous page (survives AR reload)
+    try{
+      var prev = sessionStorage.getItem('__arLogs');
+      if(prev){
+        console.log('%c====== LOGS FROM BEFORE RELOAD ======','color:#ff9800');
+        JSON.parse(prev).forEach(function(l){ console.log.apply(console, l); });
+        console.log('%c====== END PREVIOUS LOGS ======','color:#ff9800');
+        sessionStorage.removeItem('__arLogs');
+      }
+    }catch(_){}
+    window.__arLog = function(tag, extra){
+      var t = (performance.now()-T0).toFixed(0);
+      var msg = ['[AR +'+t+'ms]', tag, extra||'', 'hidden='+document.hidden, 'arActive='+(typeof arSessionActive!=='undefined'?arSessionActive:'?')];
+      console.log.apply(console, msg);
+      // Persist so AR-exit reload keeps the trail visible
+      try{
+        var buf = JSON.parse(sessionStorage.getItem('__arLogs')||'[]');
+        buf.push(msg); if(buf.length>100) buf.shift();
+        sessionStorage.setItem('__arLogs', JSON.stringify(buf));
+      }catch(_){}
+    };
+    window.addEventListener('error', function(e){ console.error('[ERR]', e.message, e.filename+':'+e.lineno); });
+    window.addEventListener('unhandledrejection', function(e){ console.error('[REJ]', e.reason); });
+    // Observe GLB download timing
+    try{
+      var po = new PerformanceObserver(function(list){
+        list.getEntries().forEach(function(e){
+          if(e.name && e.name.indexOf('.glb') !== -1){
+            window.__arLog && window.__arLog('GLB fetched', Math.round(e.duration)+'ms size='+(e.transferSize||'?')+'B');
+          }
+        });
+      });
+      po.observe({type:'resource', buffered:true});
+    }catch(_){}
+    console.log('[AR] eruda loaded — UA:', navigator.userAgent);
+  };
+  document.head.appendChild(s);
+})();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#0a0a0f;
+  color:#fff;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ===== SPLASH SCREEN ===== */
+.splash{
+  position:fixed;inset:0;z-index:9999;
+  background:#0a0a0f;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .6s,visibility .6s;
+}
+.splash.hide{opacity:0;visibility:hidden;pointer-events:none}
+.splash-logo{
+  font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:#c9a84c;
+  animation:pulse 1.5s ease-in-out infinite;
+}
+.splash-sub{font-size:.75rem;color:rgba(255,255,255,.3);margin-top:8px;letter-spacing:3px;text-transform:uppercase}
+.splash-bar{width:120px;height:3px;background:rgba(255,255,255,.08);border-radius:4px;margin-top:24px;overflow:hidden}
+.splash-bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#c9a84c,#e8d48b);border-radius:4px;animation:load 1.8s ease forwards}
+@keyframes load{to{width:100%}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* ===== HEADER ===== */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,10,15,.85);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(201,168,76,.12);
+  padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden;padding:0}
+.logo-icon img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.logo-text{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:900;color:#fff}
+.logo-text span{color:#c9a84c}
+.header-badge{
+  background:rgba(76,201,100,.12);border:1px solid rgba(76,201,100,.3);
+  color:#4cc964;font-size:.6rem;padding:4px 10px;border-radius:20px;
+  letter-spacing:1.5px;font-weight:600;text-transform:uppercase;
+  animation:glow 2s ease-in-out infinite alternate;
+}
+@keyframes glow{from{box-shadow:0 0 4px rgba(76,201,100,.2)}to{box-shadow:0 0 12px rgba(76,201,100,.4)}}
+
+/* ===== HERO / RESTAURANT BANNER ===== */
+.hero{
+  padding:32px 20px 20px;
+  text-align:center;
+  background:linear-gradient(180deg,rgba(201,168,76,.06) 0%,transparent 100%);
+  position:relative;overflow:hidden;
+}
+/* ===== HERO PARTICLES ===== */
+.hero-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.hero-particle{
+  position:absolute;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,168,76,.6),rgba(201,168,76,0));
+  animation:particleFloat linear infinite;
+  opacity:0;
+}
+@keyframes particleFloat{
+  0%{transform:translateY(0) scale(0);opacity:0}
+  10%{opacity:1}
+  90%{opacity:.6}
+  100%{transform:translateY(-120px) scale(1);opacity:0}
+}
+.hero>*{position:relative;z-index:1}
+.restaurant-name{
+  font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;
+  background:linear-gradient(135deg,#fff 30%,#c9a84c);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  line-height:1.2;
+}
+.restaurant-tagline{font-size:.8rem;color:rgba(255,255,255,.4);margin-top:6px;letter-spacing:1.5px}
+.restaurant-meta{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+.meta-chip{
+  display:flex;align-items:center;gap:4px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  padding:5px 12px;border-radius:20px;font-size:.7rem;color:rgba(255,255,255,.5);
+}
+
+/* ===== WHATSAPP FLOATING BUTTON ===== */
+.whatsapp-float{
+  position:fixed;bottom:20px;right:20px;z-index:90;
+  width:56px;height:56px;border-radius:50%;
+  background:#25D366;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(37,211,102,.4);
+  animation:waFloat 2s ease-in-out infinite;
+  transition:transform .2s;
+  text-decoration:none;
+}
+.whatsapp-float:active{transform:scale(.9)}
+.whatsapp-float svg{width:28px;height:28px;fill:#fff}
+@keyframes waFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.whatsapp-float .wa-tooltip{
+  position:absolute;right:64px;top:50%;transform:translateY(-50%);
+  background:rgba(0,0,0,.85);color:#fff;padding:6px 12px;border-radius:8px;
+  font-size:.72rem;white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity .3s;
+}
+.whatsapp-float:hover .wa-tooltip{opacity:1}
+
+/* ===== TODAY'S SPECIAL BANNER ===== */
+.special-banner{
+  margin:16px 16px 0;
+  background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));
+  border:1px solid rgba(201,168,76,.25);border-radius:16px;
+  padding:14px 18px;display:flex;align-items:center;gap:12px;
+  animation:shimmer 3s ease-in-out infinite;
+  cursor:pointer;
+  transition:transform .2s;
+}
+.special-banner:active{transform:scale(.98)}
+@keyframes shimmer{0%,100%{border-color:rgba(201,168,76,.25)}50%{border-color:rgba(201,168,76,.5)}}
+.special-fire{font-size:1.6rem;animation:bounce 1s ease infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.special-text{flex:1}
+.special-label{font-size:.6rem;color:#c9a84c;text-transform:uppercase;letter-spacing:2px;font-weight:600}
+.special-dish{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;margin-top:2px}
+.special-price{display:flex;align-items:center;gap:8px;margin-top:4px}
+.special-old{font-size:.8rem;color:rgba(255,255,255,.3);text-decoration:line-through}
+.special-new{font-size:1rem;color:#c9a84c;font-weight:700;font-family:'Playfair Display',serif}
+.special-off{background:#c9a84c;color:#1a1208;font-size:.55rem;padding:2px 8px;border-radius:10px;font-weight:700}
+.special-arrow{color:rgba(201,168,76,.6);font-size:1.2rem}
+
+/* ===== CATEGORY TABS ===== */
+.categories{
+  padding:20px 16px 0;
+  display:flex;gap:8px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+}
+.categories::-webkit-scrollbar{display:none}
+.cat-tab{
+  flex-shrink:0;
+  padding:10px 20px;border-radius:30px;
+  font-size:.78rem;font-weight:600;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);
+  color:rgba(255,255,255,.5);
+  cursor:pointer;transition:all .3s;
+  white-space:nowrap;
+}
+.cat-tab.active{
+  background:linear-gradient(135deg,#c9a84c,#a07830);
+  color:#1a1208;border-color:transparent;
+  box-shadow:0 4px 20px rgba(201,168,76,.3);
+}
+.cat-tab:not(.active):hover{border-color:rgba(201,168,76,.3);color:#c9a84c}
+
+/* ===== MENU GRID ===== */
+.menu-section{padding:20px 16px}
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+.section-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700}
+.section-count{font-size:.7rem;color:rgba(255,255,255,.3)}
+
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.dish-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;overflow:hidden;
+  cursor:pointer;transition:all .3s;
+  animation:fadeUp .5s ease backwards;
+  position:relative;
+}
+.dish-card:nth-child(1){animation-delay:.05s}
+.dish-card:nth-child(2){animation-delay:.1s}
+.dish-card:nth-child(3){animation-delay:.15s}
+.dish-card:nth-child(4){animation-delay:.2s}
+.dish-card:nth-child(5){animation-delay:.25s}
+.dish-card:nth-child(6){animation-delay:.3s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.dish-card:active{transform:scale(.97)}
+.dish-card.has-ar{border-color:rgba(201,168,76,.2)}
+.dish-card.has-ar:hover{border-color:rgba(201,168,76,.4)}
+
+.card-img{
+  width:100%;aspect-ratio:1/1;
+  background:linear-gradient(135deg,rgba(201,168,76,.08),rgba(255,255,255,.02));
+  display:flex;align-items:center;justify-content:center;
+  font-size:3rem;position:relative;overflow:hidden;
+}
+.card-img model-viewer{width:100%;height:100%;background:transparent;--poster-color:transparent}
+
+.ar-tag{
+  position:absolute;top:8px;right:8px;
+  background:linear-gradient(135deg,#c9a84c,#a07830);
+  color:#1a1208;font-size:.55rem;font-weight:700;
+  padding:3px 8px;border-radius:8px;
+  display:flex;align-items:center;gap:3px;
+  letter-spacing:.5px;text-transform:uppercase;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.veg-badge{
+  position:absolute;top:8px;left:8px;
+  width:18px;height:18px;border-radius:4px;
+  border:2px solid;display:flex;align-items:center;justify-content:center;
+}
+.veg-badge.veg{border-color:#4cc964}
+.veg-badge.veg::after{content:'';width:8px;height:8px;border-radius:50%;background:#4cc964}
+.veg-badge.non-veg{border-color:#e74c3c}
+.veg-badge.non-veg::after{content:'';width:8px;height:8px;border-radius:50%;background:#e74c3c}
+
+.card-body{padding:12px}
+.card-name{font-weight:600;font-size:.85rem;margin-bottom:4px;line-height:1.3}
+.card-desc{font-size:.68rem;color:rgba(255,255,255,.35);line-height:1.4;margin-bottom:8px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-bottom{display:flex;align-items:center;justify-content:space-between}
+.card-price{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#c9a84c}
+.card-ar-btn{
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;transition:all .3s;
+}
+.card-ar-btn:hover{background:rgba(201,168,76,.3)}
+
+/* ===== AR VIEWER MODAL ===== */
+.modal-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.95);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+}
+.modal-overlay.open{opacity:1;visibility:visible}
+.modal-overlay.open .modal-content{transform:translateY(0)}
+
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  flex-shrink:0;
+}
+.modal-close{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.08);border:none;
+  color:#fff;font-size:1.2rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700}
+
+.modal-content{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  transform:translateY(40px);transition:transform .4s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;
+}
+
+/* TABS */
+.modal-tabs{
+  display:flex;gap:0;width:100%;max-width:500px;padding:0 20px;margin-top:16px;
+}
+.modal-tab{
+  flex:1;padding:12px;border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);
+  font-size:.8rem;font-weight:600;cursor:pointer;text-align:center;
+  transition:all .3s;border-radius:0;
+  font-family:'DM Sans',sans-serif;
+}
+.modal-tab:first-child{border-radius:12px 0 0 12px}
+.modal-tab:last-child{border-radius:0 12px 12px 0}
+.modal-tab.active{
+  background:linear-gradient(135deg,#c9a84c,#a07830);
+  color:#1a1208;border-color:transparent;
+}
+
+/* INFO TAB */
+.tab-info{width:100%;max-width:500px}
+.modal-dish-hero{
+  padding:24px 20px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;
+}
+.modal-dish-emoji{font-size:4.5rem;margin-bottom:12px}
+.modal-dish-name{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;margin-bottom:4px}
+.modal-dish-name span{color:#c9a84c}
+.modal-dish-desc{font-size:.82rem;color:rgba(255,255,255,.45);line-height:1.6;margin-bottom:12px;max-width:360px}
+.modal-dish-price{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:#c9a84c;margin-bottom:16px}
+.modal-tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+.modal-tag{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;padding:5px 14px;font-size:.7rem;color:rgba(255,255,255,.5);
+}
+.modal-specs{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  width:100%;max-width:500px;padding:0 20px;margin:8px 0 16px;
+}
+.modal-spec{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;padding:12px 8px;text-align:center;
+}
+.modal-spec-icon{font-size:1.2rem;margin-bottom:4px}
+.modal-spec-label{font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px}
+.modal-spec-value{font-size:.8rem;font-weight:600;margin-top:2px}
+
+/* 3D TAB */
+.tab-3d{width:100%;max-width:500px;display:none;flex-direction:column;align-items:center}
+.tab-3d.active{display:flex}
+.modal-viewer{width:100%;height:50vh;position:relative}
+.modal-viewer model-viewer{width:100%;height:100%;background:transparent;--poster-color:transparent}
+.modal-hint-3d{
+  padding:8px 20px;text-align:center;
+  font-size:.7rem;color:rgba(255,255,255,.25);
+}
+
+/* ===== HOTSPOTS on 3D model (pill with always-visible label) ===== */
+.hotspot{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px 6px 6px;
+  border-radius:20px;
+  background:rgba(10,10,15,.92);
+  color:#fff;font-size:.75rem;font-weight:600;
+  border:2px solid #c9a84c;
+  box-shadow:0 3px 12px rgba(0,0,0,.5);
+  cursor:pointer;
+  --min-hotspot-opacity:0.7;
+  font-family:'DM Sans',sans-serif;
+  white-space:nowrap;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+.hotspot .hs-icon{
+  width:22px;height:22px;border-radius:50%;
+  background:linear-gradient(135deg,#c9a84c,#a07830);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:.85rem;flex-shrink:0;
+}
+.hotspot .hs-text{color:#fff;letter-spacing:.3px}
+.hotspot:hover,.hotspot:active{background:rgba(201,168,76,.95);color:#1a1208}
+
+/* ===== NUTRITION STRIP ===== */
+.nutrition-strip{
+  width:calc(100% - 32px);max-width:468px;
+  margin:12px 16px 4px;
+  background:linear-gradient(135deg,rgba(201,168,76,.08),rgba(255,255,255,.02));
+  border:1px solid rgba(201,168,76,.2);
+  border-radius:14px;padding:14px;
+}
+.nutrition-title{
+  font-size:.65rem;color:#c9a84c;text-transform:uppercase;letter-spacing:2px;
+  font-weight:700;margin-bottom:10px;text-align:center;
+}
+.nutrition-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;
+}
+.nutri-box{
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.06);
+  border-radius:10px;padding:8px 4px;text-align:center;
+}
+.nutri-icon{font-size:1.1rem;margin-bottom:2px}
+.nutri-value{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:#c9a84c;line-height:1}
+.nutri-label{font-size:.55rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+.ingredients-section{
+  border-top:1px solid rgba(255,255,255,.06);
+  padding-top:10px;
+}
+.ingredients-label{
+  font-size:.6rem;color:rgba(255,255,255,.4);text-transform:uppercase;
+  letter-spacing:1.5px;font-weight:600;margin-bottom:6px;
+}
+.ingredients-list{
+  display:flex;flex-wrap:wrap;gap:6px;
+}
+.ingredient-chip{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  padding:4px 10px;border-radius:20px;
+  font-size:.7rem;color:rgba(255,255,255,.7);
+}
+.allergen-row{
+  display:flex;align-items:center;gap:6px;margin-top:8px;
+  font-size:.65rem;color:rgba(231,76,60,.8);
+}
+.allergen-chip{
+  background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);
+  padding:3px 8px;border-radius:10px;font-size:.65rem;color:#e77b70;
+}
+
+/* BOTTOM ACTIONS (sticky) */
+.modal-bottom{
+  flex-shrink:0;width:100%;max-width:500px;
+  padding:12px 20px;margin:0 auto;
+  border-top:1px solid rgba(255,255,255,.08);
+  background:rgba(10,10,15,.9);
+  display:flex;gap:10px;
+}
+.btn-3d,.btn-ar{
+  flex:1;padding:14px;border:none;border-radius:14px;
+  font-size:.85rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:'DM Sans',sans-serif;transition:all .2s;
+}
+.btn-3d{
+  background:linear-gradient(135deg,#c9a84c,#a07830);
+  color:#1a1208;
+}
+.btn-ar{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  color:#fff;
+}
+.btn-ar.gold{
+  background:linear-gradient(135deg,#c9a84c,#a07830);
+  color:#1a1208;border:none;
+}
+.btn-3d:active,.btn-ar:active{opacity:.85}
+
+/* ===== FOOTER ===== */
+footer{
+  padding:30px 20px;text-align:center;
+  border-top:1px solid rgba(255,255,255,.06);
+  margin-top:20px;
+}
+.footer-logo{width:48px;height:48px;border-radius:12px;margin:0 auto 10px;overflow:hidden}
+.footer-logo img{width:100%;height:100%;object-fit:cover}
+.footer-brand{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#c9a84c;margin-bottom:4px}
+.footer-tagline{font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:8px}
+.footer-contact{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.footer-contact a{
+  display:flex;align-items:center;gap:4px;
+  color:rgba(255,255,255,.4);font-size:.7rem;text-decoration:none;
+  transition:color .2s;
+}
+.footer-contact a:hover{color:#c9a84c}
+.footer-text{font-size:.65rem;color:rgba(255,255,255,.2);letter-spacing:1px;text-transform:uppercase}
+.footer-powered{
+  margin-top:16px;padding-top:16px;
+  border-top:1px solid rgba(255,255,255,.06);
+  font-size:.6rem;color:rgba(255,255,255,.15);letter-spacing:1px;
+}
+.footer-powered span{color:#c9a84c}
+
+/* ===== SPINNER ===== */
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== SCROLL ANIMATIONS ===== */
+.reveal{opacity:0;transform:translateY(30px);transition:all .6s cubic-bezier(.4,0,.2,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ===== AR INSTRUCTION MODAL ===== */
+.ar-instruction{
+  position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.85);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  opacity:0;visibility:hidden;
+  transition:all .3s;
+}
+.ar-instruction.open{opacity:1;visibility:visible}
+.ar-card{
+  background:linear-gradient(135deg,#1a1a24,#0a0a0f);
+  border:1px solid rgba(201,168,76,.25);border-radius:20px;
+  padding:22px 20px;max-width:360px;width:100%;
+  transform:scale(.92);transition:transform .3s;
+  position:relative;
+}
+.ar-instruction.open .ar-card{transform:scale(1)}
+.ar-close-x{
+  position:absolute;top:10px;right:10px;
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(255,255,255,.08);border:none;
+  color:#fff;font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.ar-title{
+  font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;
+  text-align:center;margin-bottom:4px;color:#c9a84c;
+}
+.ar-subtitle{
+  font-size:.72rem;color:rgba(255,255,255,.4);text-align:center;
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;
+}
+.ar-tip{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 4px;border-bottom:1px solid rgba(255,255,255,.06);
+}
+.ar-tip:last-of-type{border-bottom:none}
+.ar-tip-icon{font-size:1.3rem;flex-shrink:0;width:28px;text-align:center}
+.ar-tip-text{font-size:.82rem;color:rgba(255,255,255,.82);line-height:1.45}
+.ar-tip-text b{color:#c9a84c;font-weight:700}
+.ar-start-btn{
+  width:100%;padding:13px;margin-top:14px;
+  background:linear-gradient(135deg,#c9a84c,#a07830);
+  color:#1a1208;border:none;border-radius:12px;
+  font-size:.9rem;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.ar-start-btn:active{opacity:.85;transform:scale(.98)}
+.ar-dont-show{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin-top:10px;font-size:.72rem;color:rgba(255,255,255,.45);
+  cursor:pointer;user-select:none;
+}
+.ar-dont-show input{cursor:pointer;accent-color:#c9a84c}
+
+/* ===== RESPONSIVE ===== */
+@media(min-width:500px){
+  .menu-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(min-width:768px){
+  .menu-grid{grid-template-columns:repeat(4,1fr)}
+  .hero{padding:48px 20px 30px}
+  .restaurant-name{font-size:2.4rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== SPLASH SCREEN ===== -->
+<div class="splash" id="splash">
+  <div class="splash-logo">&#127869; Smart Menu AR</div>
+  <div class="splash-sub">Loading Experience</div>
+  <div class="splash-bar"><span></span></div>
+</div>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div class="logo">
+    <div class="logo-icon"><img src="logo-square.png" alt="Smart Menu AR Logo"></div>
+    <div class="logo-text">Smart <span>Menu AR</span></div>
+  </div>
+  <div class="header-badge">&#9679; Live</div>
+</header>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <div class="hero-particles" id="heroParticles"></div>
+  <div class="restaurant-name">Smart Menu AR</div>
+  <div class="restaurant-tagline">Scan &#8226; See in 3D &#8226; Order with Confidence</div>
+  <div class="restaurant-meta">
+    <div class="meta-chip">&#11088; 4.5 Rating</div>
+    <div class="meta-chip">&#128205; Cooch Behar</div>
+    <div class="meta-chip">&#128338; 11AM - 11PM</div>
+    <div class="meta-chip">&#128222; 8637810559</div>
+  </div>
+</div>
+
+<!-- ===== TODAY'S SPECIAL ===== -->
+<div class="special-banner reveal" onclick="openDish('pav-bhaji')">
+  <div class="special-fire">&#128293;</div>
+  <div class="special-text">
+    <div class="special-label">Today's Special</div>
+    <div class="special-dish">Butter Pav Bhaji</div>
+    <div class="special-price">
+      <span class="special-old">&#8377;200</span>
+      <span class="special-new">&#8377;160</span>
+      <span class="special-off">20% OFF</span>
+    </div>
+  </div>
+  <div class="special-arrow">&#10095;</div>
+</div>
+
+<!-- ===== CATEGORY TABS ===== -->
+<div class="categories">
+  <div class="cat-tab active" data-cat="all">&#127860; All</div>
+  <div class="cat-tab" data-cat="beverages">&#129380; Beverages</div>
+  <div class="cat-tab" data-cat="starters">&#127835; Starters</div>
+  <div class="cat-tab" data-cat="main">&#127858; Main Course</div>
+  <div class="cat-tab" data-cat="desserts">&#127848; Desserts</div>
+</div>
+
+<!-- ===== MENU ===== -->
+<div class="menu-section">
+  <div class="section-header">
+    <div class="section-title">Our Menu</div>
+    <div class="section-count" id="dishCount">13 Items</div>
+  </div>
+  <div class="menu-grid" id="menuGrid">
+    <!-- Cards injected by JS -->
+  </div>
+</div>
+
+<!-- ===== AR VIEWER MODAL ===== -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-header">
+    <div class="modal-title" id="modalTitle">Dish Name</div>
+    <button class="modal-close" onclick="closeModal()">&#10005;</button>
+  </div>
+  <div class="modal-content">
+    <!-- TABS -->
+    <div class="modal-tabs" id="modalTabs">
+      <div class="modal-tab active" onclick="switchTab('info')">&#128196; Details</div>
+      <div class="modal-tab" onclick="switchTab('3d')" id="tab3dBtn">&#127922; View 3D</div>
+    </div>
+
+    <!-- INFO TAB -->
+    <div class="tab-info" id="tabInfo">
+      <div id="arExitHint" style="display:none;margin:10px 0;padding:10px 14px;background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-left:4px solid #FF6B35;border-radius:8px;color:#333;font-size:13px;font-weight:600;">&#9989; AR session ended. Tap <b>View 3D</b> below to reload the model.</div>
+      <div class="modal-dish-hero">
+        <div class="modal-dish-emoji" id="modalEmoji">&#127866;</div>
+        <div class="modal-dish-name" id="modalDishName">Cold <span>Cola</span></div>
+        <div class="modal-dish-desc" id="modalDishDesc">Description</div>
+        <div class="modal-dish-price" id="modalDishPrice">&#8377;80</div>
+        <div class="modal-tags" id="modalTags"></div>
+      </div>
+      <div class="modal-specs" id="modalSpecs"></div>
+    </div>
+
+    <!-- 3D TAB (loads model only when clicked) -->
+    <div class="tab-3d" id="tab3d">
+      <div class="modal-viewer" id="modalViewer"></div>
+      <div class="modal-hint-3d">&#128073; Drag to rotate &bull; Pinch to zoom &bull; Tap dots for info</div>
+      <div id="nutritionStrip"></div>
+    </div>
+  </div>
+
+  <!-- STICKY BOTTOM ACTIONS -->
+  <div class="modal-bottom">
+    <button class="btn-3d" id="btn3D" onclick="switchTab('3d')">&#127922; View in 3D</button>
+    <button class="btn-ar" id="btnAR" onclick="activateAR()">&#128247; AR</button>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-logo"><img src="logo-square.png" alt="Smart Menu AR"></div>
+  <div class="footer-brand">Smart Menu AR</div>
+  <div class="footer-tagline">Scan &#8226; See in 3D &#8226; Order with Confidence</div>
+  <div class="footer-contact">
+    <a href="tel:+918637810559">&#128222; 8637810559</a>
+    <a href="https://wa.me/918637810559" target="_blank">&#128172; WhatsApp</a>
+    <a>&#128205; Cooch Behar</a>
+  </div>
+  <div class="footer-text">Open Daily &#8226; 11AM - 11PM</div>
+  <div class="footer-powered">Powered by <span>Smart Menu AR</span> &#8226; No app required</div>
+</footer>
+
+<!-- ===== WHATSAPP FLOATING BUTTON ===== -->
+<a class="whatsapp-float" href="https://wa.me/918637810559?text=Hi%2C%20I%20saw%20your%20Smart%20Menu%20AR%20and%20I%27m%20interested!" target="_blank" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  <span class="wa-tooltip">Chat with us!</span>
+</a>
+
+<!-- ===== AR INSTRUCTION MODAL ===== -->
+<div class="ar-instruction" id="arInstruction">
+  <div class="ar-card">
+    <button class="ar-close-x" onclick="closeARInstruction()">&#10005;</button>
+    <div class="ar-title">&#128247; Before You Start AR</div>
+    <div class="ar-subtitle">For Best Experience</div>
+    <div class="ar-tip">
+      <div class="ar-tip-icon">&#128161;</div>
+      <div class="ar-tip-text">Use in a <b>well-lit area</b> &mdash; bright room works best</div>
+    </div>
+    <div class="ar-tip">
+      <div class="ar-tip-icon">&#127859;</div>
+      <div class="ar-tip-text">Point camera at a <b>textured surface</b> like a table, floor, or carpet</div>
+    </div>
+    <div class="ar-tip">
+      <div class="ar-tip-icon">&#128241;</div>
+      <div class="ar-tip-text"><b>Slowly move your phone</b> around for 2&ndash;3 seconds so camera detects surface</div>
+    </div>
+    <div class="ar-tip">
+      <div class="ar-tip-icon">&#9881;&#65039;</div>
+      <div class="ar-tip-text">Tap the <b>top-right circle icon</b> to toggle Object Blending for faster display</div>
+    </div>
+    <button class="ar-start-btn" onclick="proceedToAR()">&#128247; Start AR Experience</button>
+    <label class="ar-dont-show">
+      <input type="checkbox" id="arDontShow"> Don't show this again
+    </label>
+  </div>
+</div>
+
+<script>
+// ===== MENU DATA =====
+const MENU = [
+  {
+    id:'cola',
+    name:'Cold Cola',
+    nameHTML:'Cold <span>Cola</span>',
+    desc:'Chilled to perfection. Ice-cold cola served in a classic glass bottle. The perfect refreshment.',
+    price:80,
+    oldPrice:100,
+    category:'beverages',
+    veg:true,
+    tags:['&#10052; Cold','&#127850; Refreshing','&#9889; 250ml'],
+    specs:[
+      {icon:'&#9889;',label:'Volume',value:'250 ml'},
+      {icon:'&#10052;',label:'Served',value:'Chilled'},
+      {icon:'&#127850;',label:'Type',value:'Soft Drink'}
+    ],
+    emoji:'&#127866;',
+    hasAR:true,
+    model:'models/l_cola.glb?v=5'
+  },
+  {
+    id:'pav-bhaji',
+    name:'Butter Pav Bhaji',
+    nameHTML:'Butter <span>Pav Bhaji</span>',
+    desc:'Mumbai-style spicy mashed vegetable curry topped with a generous slab of butter, served with soft toasted pav buns.',
+    price:160,
+    oldPrice:200,
+    category:'main',
+    veg:true,
+    tags:['&#129408; Butter Loaded','&#127798; Spicy','&#11088; Bestseller'],
+    specs:[
+      {icon:'&#129408;',label:'Style',value:'Mumbai'},
+      {icon:'&#127798;',label:'Spice',value:'Medium'},
+      {icon:'&#129480;',label:'Pav',value:'2 pcs'}
+    ],
+    emoji:'&#127835;',
+    hasAR:true,
+    model:'models/butter_pao_bhaji.glb?v=5',
+    nutrition:{
+      calories:'320 kcal',
+      protein:'12g',
+      carbs:'45g',
+      fiber:'8g',
+      fat:'10g',
+      sodium:'450mg'
+    },
+    ingredients:['Potato','Peas','Onion','Tomato','Capsicum','Butter','Pav Buns','Pav Bhaji Masala','Ginger-Garlic','Coriander'],
+    allergens:['Dairy','Gluten'],
+    hotspots:[
+      {side:'left',emoji:'&#129480;',label:'Pav',info:'2 toasted buns'},
+      {side:'right',emoji:'&#127798;',label:'Bhaji',info:'Spicy veggie mash'},
+      {side:'back',emoji:'&#129408;',label:'Butter',info:'Fresh cream butter'}
+    ]
+  },
+  {
+    id:'oreo-milkshake',
+    name:'Oreo Milk Shake',
+    nameHTML:'Oreo <span>Milk Shake</span>',
+    desc:'Creamy, thick milkshake blended with crushed Oreo cookies, vanilla ice cream, and chilled milk. Topped with whipped cream.',
+    price:150,
+    category:'beverages',
+    veg:true,
+    tags:['&#10052; Cold','&#127846; Creamy','&#11088; Popular'],
+    specs:[
+      {icon:'&#127846;',label:'Type',value:'Shake'},
+      {icon:'&#10052;',label:'Served',value:'Chilled'},
+      {icon:'&#128207;',label:'Size',value:'300 ml'}
+    ],
+    emoji:'&#129371;',
+    hasAR:true,
+    model:'models/oreo_milk_shake.glb?v=5'
+  },
+  {
+    id:'pizza-cheese-dosa',
+    name:'Pizza Cheese Roast Dosa',
+    nameHTML:'Pizza Cheese <span>Roast Dosa</span>',
+    desc:'Crispy roast dosa loaded with pizza sauce, mozzarella cheese, capsicum, and onions. A perfect fusion of South Indian and Italian flavours.',
+    price:180,
+    category:'starters',
+    veg:true,
+    tags:['&#127829; Cheesy','&#128293; Roasted','&#129472; Fusion'],
+    specs:[
+      {icon:'&#127829;',label:'Style',value:'Fusion'},
+      {icon:'&#129472;',label:'Base',value:'Dosa'},
+      {icon:'&#127798;',label:'Spice',value:'Mild'}
+    ],
+    emoji:'&#127829;',
+    hasAR:true,
+    model:'models/pizza_cheese_roast_dosa.glb?v=5'
+  },
+  {
+    id:'plain-dosa',
+    name:'Plain Dosa',
+    nameHTML:'Plain <span>Dosa</span>',
+    desc:'Classic crispy South Indian dosa served hot with sambar and chutney.',
+    price:120,
+    category:'main',
+    veg:true,
+    tags:['&#129480; Crispy','&#127869; Classic','&#127807; Veg'],
+    specs:[
+      {icon:'&#129480;',label:'Style',value:'Plain'},
+      {icon:'&#127798;',label:'Spice',value:'Mild'},
+      {icon:'&#9202;',label:'Prep',value:'10 min'}
+    ],
+    emoji:'&#129480;',
+    hasAR:false
+  },
+  {
+    id:'sambar',
+    name:'Sambar',
+    nameHTML:'Fresh <span>Sambar</span>',
+    desc:'Warm lentil and vegetable stew simmered with South Indian spices.',
+    price:80,
+    category:'main',
+    veg:true,
+    tags:['&#127858; Lentils','&#127807; Veg','&#128293; Hot'],
+    specs:[
+      {icon:'&#127858;',label:'Base',value:'Lentil'},
+      {icon:'&#127798;',label:'Spice',value:'Medium'},
+      {icon:'&#129379;',label:'Serve',value:'Bowl'}
+    ],
+    emoji:'&#127858;',
+    hasAR:false
+  },
+  {
+    id:'chutney',
+    name:'Chutney',
+    nameHTML:'Coconut <span>Chutney</span>',
+    desc:'Fresh coconut chutney with roasted spices, curry leaves, and green chilli.',
+    price:50,
+    category:'starters',
+    veg:true,
+    tags:['&#129367; Coconut','&#127807; Fresh','&#127798; Mild'],
+    specs:[
+      {icon:'&#129367;',label:'Base',value:'Coconut'},
+      {icon:'&#127807;',label:'Type',value:'Fresh'},
+      {icon:'&#129379;',label:'Serve',value:'Side'}
+    ],
+    emoji:'&#129367;',
+    hasAR:false
+  },
+  {
+    id:'coffee',
+    name:'Coffee',
+    nameHTML:'Filter <span>Coffee</span>',
+    desc:'Strong South Indian filter coffee served hot with frothy milk.',
+    price:40,
+    category:'beverages',
+    veg:true,
+    tags:['&#9749; Hot','&#9889; Strong','&#129371; Milk'],
+    specs:[
+      {icon:'&#9749;',label:'Served',value:'Hot'},
+      {icon:'&#128207;',label:'Size',value:'150 ml'},
+      {icon:'&#9889;',label:'Type',value:'Filter'}
+    ],
+    emoji:'&#9749;',
+    hasAR:false
+  },
+  {
+    id:'masala-chai',
+    name:'Masala Chai',
+    nameHTML:'Masala <span>Chai</span>',
+    desc:'Authentic Indian spiced tea brewed with fresh ginger, cardamom, and premium Assam leaves.',
+    price:40,
+    category:'beverages',
+    veg:true,
+    tags:['&#9749; Hot','&#127807; Fresh Spices','&#128293; Signature'],
+    specs:[
+      {icon:'&#9749;',label:'Served',value:'Hot'},
+      {icon:'&#128207;',label:'Size',value:'150 ml'},
+      {icon:'&#127807;',label:'Type',value:'Tea'}
+    ],
+    emoji:'&#9749;',
+    hasAR:false
+  },
+  {
+    id:'paneer-tikka',
+    name:'Paneer Tikka',
+    nameHTML:'Paneer <span>Tikka</span>',
+    desc:'Smoky, chargrilled paneer cubes marinated in tandoori spices. Served with mint chutney.',
+    price:220,
+    category:'starters',
+    veg:true,
+    tags:['&#128293; Tandoori','&#127807; Veg','&#127798; Spicy'],
+    specs:[
+      {icon:'&#128293;',label:'Style',value:'Tandoori'},
+      {icon:'&#127798;',label:'Spice',value:'Medium'},
+      {icon:'&#9202;',label:'Prep',value:'15 min'}
+    ],
+    emoji:'&#129472;',
+    hasAR:false
+  },
+  {
+    id:'chicken-biryani',
+    name:'Chicken Biryani',
+    nameHTML:'Chicken <span>Biryani</span>',
+    desc:'Fragrant basmati rice layered with tender chicken, saffron, and aromatic spices. Dum-cooked to perfection.',
+    price:280,
+    category:'main',
+    veg:false,
+    tags:['&#128293; Dum Cooked','&#127834; Basmati','&#11088; Bestseller'],
+    specs:[
+      {icon:'&#127834;',label:'Rice',value:'Basmati'},
+      {icon:'&#127798;',label:'Spice',value:'Medium'},
+      {icon:'&#9202;',label:'Prep',value:'25 min'}
+    ],
+    emoji:'&#127858;',
+    hasAR:false
+  },
+  {
+    id:'butter-naan',
+    name:'Butter Naan',
+    nameHTML:'Butter <span>Naan</span>',
+    desc:'Soft, fluffy naan brushed with melted butter. Freshly baked in our tandoor oven.',
+    price:50,
+    category:'main',
+    veg:true,
+    tags:['&#129480; Tandoor','&#129408; Butter','&#128293; Fresh'],
+    specs:[
+      {icon:'&#129480;',label:'Style',value:'Tandoor'},
+      {icon:'&#129408;',label:'Top',value:'Butter'},
+      {icon:'&#9202;',label:'Prep',value:'8 min'}
+    ],
+    emoji:'&#129480;',
+    hasAR:false
+  },
+  {
+    id:'gulab-jamun',
+    name:'Gulab Jamun',
+    nameHTML:'Gulab <span>Jamun</span>',
+    desc:'Soft, golden dumplings soaked in warm rose-cardamom sugar syrup. Served warm.',
+    price:90,
+    category:'desserts',
+    veg:true,
+    tags:['&#127856; Sweet','&#127801; Rose Syrup','&#128293; Warm'],
+    specs:[
+      {icon:'&#127856;',label:'Type',value:'Sweet'},
+      {icon:'&#127801;',label:'Syrup',value:'Rose'},
+      {icon:'&#9202;',label:'Pcs',value:'2 pcs'}
+    ],
+    emoji:'&#127856;',
+    hasAR:false
+  }
+];
+
+// ===== RESTAURANT CONFIG (easy to customize per client) =====
+const CONFIG = {
+  name: 'Smart Menu AR',
+  tagline: 'Scan • See in 3D • Order with Confidence',
+  address: 'Cooch Behar',
+  phone: '8637810559',
+  whatsapp: '918637810559',
+  hours: '11AM - 11PM',
+  logo: 'logo-square.png',
+  themeColor: '#c9a84c',          // Gold — already matches existing design
+  themeDark: '#0a0a0f',
+};
+const RESTAURANT_NAME = CONFIG.name;
+
+// ===== SPLASH & URL PARAMS =====
+window.addEventListener('load',()=>{
+  const params = new URLSearchParams(window.location.search);
+  const dishId = params.get('dish');
+
+  if(dishId){
+    // Direct dish from QR code
+    setTimeout(()=>{
+      document.getElementById('splash').classList.add('hide');
+      setTimeout(()=>{
+        if(!openDish(dishId)) clearDishUrl();
+      },500);
+    },1500);
+  } else {
+    // Normal page load
+    setTimeout(()=>document.getElementById('splash').classList.add('hide'),2000);
+  }
+});
+
+// ===== RENDER MENU =====
+let currentCat = 'all';
+function renderMenu(cat){
+  const grid = document.getElementById('menuGrid');
+  const items = cat==='all' ? MENU : MENU.filter(d=>d.category===cat);
+  document.getElementById('dishCount').textContent = items.length + ' Items';
+
+  grid.innerHTML = items.map(dish=>`
+    <div class="dish-card ${dish.hasAR?'has-ar':''}" onclick="openDish('${dish.id}')">
+      <div class="card-img">
+        <div style="font-size:3.5rem">${dish.emoji}</div>
+        ${dish.hasAR ? '<div class="ar-tag">&#10024; 3D AR</div>' : ''}
+        <div class="veg-badge ${dish.veg?'veg':'non-veg'}"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${dish.name}</div>
+        <div class="card-desc">${dish.desc}</div>
+        <div class="card-bottom">
+          <div class="card-price">&#8377;${dish.price}</div>
+          ${dish.hasAR?'<div class="card-ar-btn">&#128247;</div>':''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+renderMenu('all');
+
+// Auto-restore dish from URL hash (after a reload from AR exit)
+(function restoreFromHash(){
+  try{
+    if(new URLSearchParams(window.location.search).has('dish')) return;
+    const m = location.hash.match(/^#dish=([\w-]+)/);
+    if(m){
+      // small delay so the menu DOM is settled before modal pops
+      setTimeout(()=>openDish(m[1]), 100);
+    }
+  }catch(_){}
+})();
+
+// ===== CATEGORY TABS =====
+document.querySelectorAll('.cat-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    currentCat = tab.dataset.cat;
+    renderMenu(currentCat);
+  });
+});
+
+// ===== MODAL =====
+let currentDish = null;
+
+let modelLoaded = false;
+
+function clearDishUrl(){
+  try{
+    const url = new URL(location.href);
+    url.searchParams.delete('dish');
+    url.hash = '';
+    history.replaceState(null, '', url.pathname + url.search);
+  }catch(_){}
+}
+
+function resetNutritionStrip(){
+  const strip = document.getElementById('nutritionStrip');
+  if(strip){
+    strip.innerHTML = '';
+    strip.className = '';
+  }
+}
+
+function openDish(id){
+  const dish = MENU.find(d=>d.id===id);
+  if(!dish) return false;
+  currentDish = dish;
+  modelLoaded = false;
+
+  // Reset to info tab
+  switchTab('info',true);
+
+  document.getElementById('modalTitle').textContent = dish.name;
+  document.getElementById('modalEmoji').innerHTML = dish.emoji;
+  document.getElementById('modalDishName').innerHTML = dish.nameHTML;
+  document.getElementById('modalDishDesc').textContent = dish.desc;
+  document.getElementById('modalDishPrice').innerHTML = (dish.oldPrice
+    ? `<span style="font-size:.9rem;color:rgba(255,255,255,.3);text-decoration:line-through;margin-right:8px">&#8377;${dish.oldPrice}</span>`
+    : '') + `&#8377;${dish.price}`;
+
+  document.getElementById('modalTags').innerHTML = dish.tags.map(t=>`<div class="modal-tag">${t}</div>`).join('');
+  document.getElementById('modalSpecs').innerHTML = dish.specs.map(s=>`
+    <div class="modal-spec">
+      <div class="modal-spec-icon">${s.icon}</div>
+      <div class="modal-spec-label">${s.label}</div>
+      <div class="modal-spec-value">${s.value}</div>
+    </div>
+  `).join('');
+
+  // Properly dispose any previous model (prevents WebGL context accumulation)
+  disposeModelViewer();
+  document.getElementById('modalViewer').innerHTML = '';
+  resetNutritionStrip();
+
+  // Show/hide 3D buttons based on AR availability
+  const has3D = dish.hasAR && dish.model;
+  document.getElementById('tab3dBtn').style.display = has3D ? 'block' : 'none';
+  document.getElementById('btn3D').style.display = has3D ? 'flex' : 'none';
+  document.getElementById('btnAR').style.display = has3D ? 'flex' : 'none';
+
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Persist dish ID in URL hash so a page reload (after AR) lands back here.
+  try{
+    if(location.hash !== '#dish=' + dish.id){
+      history.replaceState(null, '', '#dish=' + dish.id);
+    }
+  }catch(_){}
+
+  // Preload the GLB the moment the modal opens — so if user taps AR right
+  // away, the browser already has it warm in cache. Massively cuts the
+  // "Point your phone down..." waiting time in Scene Viewer.
+  if(dish.hasAR && dish.model){
+    window.__arLog && window.__arLog('modal opened → preload', dish.model);
+    let link = document.getElementById('modelPreload');
+    if(!link){
+      link = document.createElement('link');
+      link.id   = 'modelPreload';
+      link.rel  = 'preload';
+      link.as   = 'fetch';
+      link.crossOrigin = 'anonymous';
+      document.head.appendChild(link);
+    }
+    link.href = dish.model;
+  } else {
+    const link = document.getElementById('modelPreload');
+    if(link) link.remove();
+  }
+
+  return true;
+}
+
+function switchTab(tab, skipModel){
+  const tabInfo = document.getElementById('tabInfo');
+  const tab3d = document.getElementById('tab3d');
+  const tabs = document.querySelectorAll('.modal-tab');
+  const btn3D = document.getElementById('btn3D');
+
+  if(tab==='info'){
+    // User explicitly chose Info — cancel any pending AR auto-activation
+    // so we don't surprise them with a sudden fullscreen AR launch after
+    // the model finishes loading in the background.
+    if(arCheckInterval){ clearInterval(arCheckInterval); arCheckInterval = null; }
+    arSessionActive = false;
+    tabInfo.style.display = 'block';
+    tab3d.classList.remove('active');
+    tabs[0].classList.add('active');
+    tabs[1].classList.remove('active');
+    btn3D.innerHTML = '&#127922; View in 3D';
+    btn3D.setAttribute('onclick','switchTab("3d")');
+  } else if(tab==='3d' && currentDish && currentDish.hasAR){
+    tabInfo.style.display = 'none';
+    tab3d.classList.add('active');
+    tabs[1].classList.add('active');
+    tabs[0].classList.remove('active');
+    btn3D.innerHTML = '&#128196; Details';
+    btn3D.setAttribute('onclick','switchTab("info")');
+
+    // Load model only now (lazy load)
+    if(!modelLoaded && !skipModel){
+      loadModel();
+    }
+  }
+}
+
+// Fully dispose model-viewer and release WebGL context. Defensive — must
+// never throw or hang, because we call this on visibility/freeze events.
+function disposeModelViewer(){
+  const mv = document.getElementById('arModel');
+  if(!mv){
+    // No model-viewer; also clear any orphan content in the container
+    const v = document.getElementById('modalViewer');
+    if(v) v.innerHTML = '';
+    return;
+  }
+  try{
+    mv.src = '';
+    mv.removeAttribute('src');
+    if(mv.shadowRoot){
+      const canvas = mv.shadowRoot.querySelector('canvas');
+      if(canvas){
+        try{
+          const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+          if(gl){
+            const ext = gl.getExtension('WEBGL_lose_context');
+            if(ext) ext.loseContext();
+          }
+        }catch(_){}
+      }
+    }
+  }catch(e){}
+  // Remove the element entirely and clear its container
+  try{
+    if(mv.parentNode) mv.parentNode.removeChild(mv);
+  }catch(_){}
+  const v = document.getElementById('modalViewer');
+  if(v) v.innerHTML = '';
+}
+
+// Each side's position (as fraction of bounding box dimensions from center) + normal vector
+const HOTSPOT_SIDES = {
+  left:   {mult:[-0.55, 0.00, 0.00], normal:[-1,  0,  0]},
+  right:  {mult:[ 0.55, 0.00, 0.00], normal:[ 1,  0,  0]},
+  top:    {mult:[ 0.00, 0.65, 0.00], normal:[ 0,  1,  0]},
+  bottom: {mult:[ 0.00,-0.55, 0.00], normal:[ 0, -1,  0]},
+  front:  {mult:[ 0.00, 0.00, 0.55], normal:[ 0,  0,  1]},
+  back:   {mult:[ 0.00, 0.00,-0.55], normal:[ 0,  0, -1]}
+};
+
+function buildHotspotsHTML(hotspots){
+  if(!hotspots || !hotspots.length) return '';
+  return hotspots.map((h,i)=>`
+    <button slot="hotspot-${i+1}" class="hotspot" data-position="0 0 0" data-normal="0 1 0" data-visibility-attribute="visible">
+      <span class="hs-icon">${h.emoji}</span>
+      <span class="hs-text">${h.label} &middot; ${h.info}</span>
+    </button>
+  `).join('');
+}
+
+// Compute real positions from the loaded model's actual bounding box
+function positionHotspots(mv){
+  if(!currentDish || !currentDish.hotspots) return;
+  let dims, center;
+  try{
+    dims   = mv.getDimensions();
+    center = mv.getBoundingBoxCenter();
+  }catch(e){ return; }
+  if(!dims || !dims.x) return;
+  currentDish.hotspots.forEach((h,i)=>{
+    const cfg = HOTSPOT_SIDES[h.side] || HOTSPOT_SIDES.top;
+    const position = [
+      center.x + cfg.mult[0]*dims.x,
+      center.y + cfg.mult[1]*dims.y,
+      center.z + cfg.mult[2]*dims.z
+    ].join(' ');
+    const normal = cfg.normal.join(' ');
+    try{
+      mv.updateHotspot({name:`hotspot-${i+1}`, position, normal});
+    }catch(e){}
+  });
+}
+
+function renderNutritionStrip(){
+  const strip = document.getElementById('nutritionStrip');
+  if(!strip) return;
+  if(!currentDish || !currentDish.nutrition){
+    resetNutritionStrip();
+    return;
+  }
+  const n = currentDish.nutrition;
+  const ing = currentDish.ingredients || [];
+  const allerg = currentDish.allergens || [];
+  strip.className = 'nutrition-strip';
+  strip.innerHTML = `
+    <div class="nutrition-title">&#128202; Nutrition Facts</div>
+    <div class="nutrition-grid">
+      ${n.calories?`<div class="nutri-box"><div class="nutri-icon">&#128293;</div><div class="nutri-value">${n.calories.replace(' kcal','')}</div><div class="nutri-label">kcal</div></div>`:''}
+      ${n.protein?`<div class="nutri-box"><div class="nutri-icon">&#128170;</div><div class="nutri-value">${n.protein}</div><div class="nutri-label">Protein</div></div>`:''}
+      ${n.carbs?`<div class="nutri-box"><div class="nutri-icon">&#127838;</div><div class="nutri-value">${n.carbs}</div><div class="nutri-label">Carbs</div></div>`:''}
+      ${n.fat?`<div class="nutri-box"><div class="nutri-icon">&#129408;</div><div class="nutri-value">${n.fat}</div><div class="nutri-label">Fat</div></div>`:''}
+      ${n.fiber?`<div class="nutri-box"><div class="nutri-icon">&#129389;</div><div class="nutri-value">${n.fiber}</div><div class="nutri-label">Fiber</div></div>`:''}
+      ${n.sodium?`<div class="nutri-box"><div class="nutri-icon">&#129474;</div><div class="nutri-value">${n.sodium}</div><div class="nutri-label">Sodium</div></div>`:''}
+    </div>
+    ${ing.length?`
+    <div class="ingredients-section">
+      <div class="ingredients-label">&#127859; Ingredients</div>
+      <div class="ingredients-list">
+        ${ing.map(i=>`<span class="ingredient-chip">${i}</span>`).join('')}
+      </div>
+      ${allerg.length?`
+      <div class="allergen-row">
+        <span>&#9888;&#65039; Contains:</span>
+        ${allerg.map(a=>`<span class="allergen-chip">${a}</span>`).join('')}
+      </div>`:''}
+    </div>`:''}
+  `;
+}
+
+function loadModel(){
+  if(!currentDish || !currentDish.model) return;
+  // Dispose any existing model first (prevents WebGL context accumulation)
+  disposeModelViewer();
+  const viewer = document.getElementById('modalViewer');
+  const hotspotsHTML = buildHotspotsHTML(currentDish.hotspots);
+  viewer.innerHTML = `
+    <div id="modelLoader" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;background:rgba(0,0,0,.6)">
+      <div style="width:44px;height:44px;border:3px solid rgba(201,168,76,.2);border-top-color:#c9a84c;border-radius:50%;animation:spin 1s linear infinite"></div>
+      <div id="loadPercent" style="font-size:1rem;color:#c9a84c;font-weight:700;margin-top:14px;font-family:'Playfair Display',serif">0%</div>
+      <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-top:4px">Loading 3D Model</div>
+      <div style="width:140px;height:4px;background:rgba(255,255,255,.1);border-radius:4px;margin-top:12px;overflow:hidden">
+        <div id="loadBar" style="height:100%;width:0%;background:linear-gradient(90deg,#c9a84c,#e8d48b);border-radius:4px;transition:width .3s"></div>
+      </div>
+    </div>
+    <model-viewer id="arModel" src="${currentDish.model}" auto-rotate camera-controls
+      ar ar-modes="scene-viewer quick-look" shadow-intensity="1" exposure="1.2"
+      camera-orbit="0deg 75deg 2m" loading="eager" reveal="auto"
+      style="width:100%;height:100%;background:transparent;--poster-color:transparent">
+      ${hotspotsHTML}
+    </model-viewer>`;
+  // Render nutrition strip for this dish
+  renderNutritionStrip();
+  const mv = document.getElementById('arModel');
+  // Progress tracking
+  mv.addEventListener('progress',(e)=>{
+    const pct = Math.round(e.detail.totalProgress * 100);
+    const pctEl = document.getElementById('loadPercent');
+    const barEl = document.getElementById('loadBar');
+    if(pctEl) pctEl.textContent = pct + '%';
+    if(barEl) barEl.style.width = pct + '%';
+  });
+  mv.addEventListener('load',()=>{
+    modelLoaded = true;
+    const loader = document.getElementById('modelLoader');
+    if(loader) loader.style.display='none';
+    // Compute real hotspot positions from the loaded model's bounding box
+    // Small timeout so dimensions are ready
+    setTimeout(()=>positionHotspots(mv), 50);
+  });
+  // Authoritative AR session tracking via model-viewer's own events.
+  // This covers BOTH WebXR (in-page AR) and Scene Viewer (external app),
+  // and doesn't rely on visibilitychange timing which is unreliable.
+  mv.addEventListener('ar-status',(e)=>{
+    const status = e.detail && e.detail.status;
+    window.__arLog && window.__arLog('ar-status', status);
+    if(status === 'session-started'){
+      arSessionActive = true;
+      mv.dataset.wasInAR = '1';
+    } else if(status === 'not-presenting' && mv.dataset.wasInAR === '1'){
+      // User exited AR. Whole page state (WebGL/workers) is likely fragile.
+      // Reload — the dish hash preserves context.
+      mv.dataset.wasInAR = '0';
+      window.__arLog && window.__arLog('ar-status EXIT → reloading');
+      setTimeout(()=>{ location.reload(); }, 150);
+    }
+  });
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+  // Clear dish URL state so reload doesn't auto-open after the user closes it.
+  clearDishUrl();
+  // Clear any pending AR activation interval & watchdog
+  if(arCheckInterval){ clearInterval(arCheckInterval); arCheckInterval = null; }
+  if(arWatchdog){ clearTimeout(arWatchdog); arWatchdog = null; }
+  arSessionActive = false;
+  pendingReset    = false;
+  // Destroy model & free WebGL memory
+  setTimeout(()=>{
+    disposeModelViewer();
+    const v = document.getElementById('modalViewer');
+    if(v) v.innerHTML = '';
+    resetNutritionStrip();
+    modelLoaded = false;
+    currentDish = null;
+    document.getElementById('btn3D').setAttribute('onclick','switchTab("3d")');
+  },400);
+}
+
+// User tapped "Start AR" in instruction modal — close it and launch AR
+function proceedToAR(){
+  const dontShow = document.getElementById('arDontShow').checked;
+  if(dontShow) localStorage.setItem('arInstructionDismissed','1');
+  document.getElementById('arInstruction').classList.remove('open');
+  // Small delay for close animation, then launch AR skipping the modal
+  setTimeout(()=>activateAR(true), 200);
+}
+
+// User cancelled — just close the modal
+function closeARInstruction(){
+  document.getElementById('arInstruction').classList.remove('open');
+}
+
+let arCheckInterval = null;
+let arSessionActive = false; // tracks whether user launched AR (to detect return)
+let arSessionStart  = 0;
+let arActivationLock = false; // prevents rapid re-taps from stacking activations
+let arWatchdog = null;
+
+function isAndroid(){ return /Android/i.test(navigator.userAgent); }
+function isIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent); }
+
+// Direct Scene Viewer launch — fires the Android intent immediately without
+// waiting for model-viewer to boot / load the GLB in the web page. Scene
+// Viewer fetches the GLB itself from the same URL (hits HTTP cache on repeat).
+function launchSceneViewerDirect(modelUrl, dishName){
+  const absUrl   = new URL(modelUrl, location.href).href;
+  window.__arLog && window.__arLog('SceneViewer intent fire', absUrl);
+  const fileEnc  = encodeURIComponent(absUrl);
+  const title    = encodeURIComponent(dishName || 'Dish');
+  const fallback = encodeURIComponent(location.href);
+  // mode=3d_preferred: dish shows instantly in Scene Viewer's 3D preview,
+  // user can tap the "View in your space" button to enter AR when ready.
+  // Avoids the 10-30s ARCore floor-scan wait that users perceive as "slow load".
+  const intent =
+    'intent://arvr.google.com/scene-viewer/1.0?file=' + fileEnc +
+    '&mode=3d_preferred&title=' + title +
+    '#Intent;scheme=https;package=com.google.android.googlequicksearchbox;' +
+    'action=android.intent.action.VIEW;' +
+    'S.browser_fallback_url=' + fallback + ';end;';
+  location.href = intent;
+}
+
+function activateAR(skipInstruction){
+  window.__arLog && window.__arLog('activateAR called', skipInstruction?'(skipped instruction)':'');
+
+  // Show first-time instruction modal unless user dismissed it
+  if(!skipInstruction && localStorage.getItem('arInstructionDismissed') !== '1'){
+    document.getElementById('arInstruction').classList.add('open');
+    return;
+  }
+
+  if(arActivationLock){ return; }
+  arActivationLock = true;
+  setTimeout(()=>{ arActivationLock = false; }, 1500);
+
+  if(arCheckInterval){ clearInterval(arCheckInterval); arCheckInterval = null; }
+  if(arWatchdog){ clearTimeout(arWatchdog); arWatchdog = null; }
+
+  arSessionActive = true;
+  arSessionStart  = Date.now();
+
+  // Android fast path — fire Scene Viewer intent directly. No need to wait
+  // for model-viewer to finish loading the GLB in the web page; Scene Viewer
+  // downloads it itself (and benefits from our 1-year Cache-Control header).
+  if(isAndroid() && currentDish && currentDish.model){
+    launchSceneViewerDirect(currentDish.model, currentDish.name);
+    return;
+  }
+
+  // iOS / desktop fallback — go through model-viewer's activateAR()
+  if(!modelLoaded && currentDish && currentDish.hasAR){
+    switchTab('3d');
+    let attempts = 0;
+    arCheckInterval = setInterval(()=>{
+      attempts++;
+      const mv = document.getElementById('arModel');
+      if(mv && modelLoaded){
+        clearInterval(arCheckInterval); arCheckInterval = null;
+        try{ mv.activateAR(); }catch(e){ arSessionActive = false; }
+      } else if(attempts > 20){
+        clearInterval(arCheckInterval); arCheckInterval = null;
+        arSessionActive = false;
+      }
+    },500);
+    return;
+  }
+  const mv = document.getElementById('arModel');
+  if(mv){
+    try{ mv.activateAR(); }catch(e){ arSessionActive = false; }
+  }
+}
+
+// ===== GPU LIFECYCLE MANAGEMENT =====
+// The browser can freeze a hidden tab while it holds a live WebGL context,
+// and the context is often unrecoverable on return. Fix: free GPU resources
+// when the tab is truly going to background, and always reset UI to Info tab
+// on return. Critical: do NOT dispose during the AR launch transition itself
+// (that caused hangs on AR exit — focus/blur fires before Scene Viewer is
+// ready). Wait for visibilitychange, which fires only once the tab is really
+// hidden.
+let arExitHandling  = false;
+let pendingReset    = false; // set when we dispose during non-AR minimize
+
+function freeGpuResources(){
+  try{ disposeModelViewer(); }catch(e){}
+  modelLoaded = false;
+}
+
+function showArExitHint(){
+  const hint = document.getElementById('arExitHint');
+  if(hint){
+    hint.style.display = 'block';
+    setTimeout(()=>{ hint.style.display = 'none'; }, 4000);
+  }
+}
+
+document.addEventListener('visibilitychange',()=>{
+  window.__arLog && window.__arLog('visibilitychange', 'arSessionActive='+arSessionActive);
+  if(document.hidden){
+    // Non-AR tab hiding: free GPU immediately so the browser can safely freeze us.
+    // During AR launch/return, keep the model intact until the foreground handler reloads.
+    if(!arSessionActive) freeGpuResources();
+    const modalOpen = document.getElementById('modal').classList.contains('open');
+    const on3dTab   = document.getElementById('tab3d').classList.contains('active');
+    if(modalOpen && on3dTab && !arSessionActive) pendingReset = true;
+    return;
+  }
+
+  // Returning to foreground
+  if(arExitHandling) return;
+
+  const wasAR      = arSessionActive;
+  const needsReset = pendingReset;
+  if(!wasAR && !needsReset) return;
+
+  arExitHandling  = true;
+  arSessionActive = false;
+  pendingReset    = false;
+
+  // NUCLEAR FIX: when returning from AR, the whole page state (WebGL,
+  // workers, decoder cache, Chrome's renderer process) may be corrupted
+  // and no amount of in-page cleanup can reliably un-hang it. Reload
+  // the page. The dish ID is preserved in location.hash so the user
+  // lands back on the same dish as if nothing happened.
+  if(wasAR){
+    window.__arLog && window.__arLog('RELOADING after AR return');
+    location.reload();
+    return;
+  }
+
+  // Non-AR minimize case — softer recovery is enough
+  const modalOpen = document.getElementById('modal').classList.contains('open');
+  if(modalOpen){
+    try{ switchTab('info'); }catch(e){}
+    showArExitHint();
+  }
+  setTimeout(()=>{ arExitHandling = false; }, 1500);
+});
+
+// Chrome freeze event — fires just before the tab is frozen. Safe cleanup
+// point, but skip during AR launch transition.
+document.addEventListener('freeze',()=>{
+  if(arSessionActive) return;
+  freeGpuResources();
+  pendingReset = true;
+});
+
+// BFCache restore — reset all state
+window.addEventListener('pageshow',(e)=>{
+  if(e.persisted){
+    arSessionActive = false;
+    arExitHandling  = false;
+    pendingReset    = false;
+    modelLoaded     = false;
+    const modalOpen = document.getElementById('modal').classList.contains('open');
+    if(modalOpen){
+      try{ switchTab('info'); }catch(e){}
+    }
+  }
+});
+
+
+// ===== SCROLL REVEAL =====
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// ===== CLOSE MODAL ON BACK =====
+window.addEventListener('popstate',()=>{
+  if(document.getElementById('modal').classList.contains('open')){
+    closeModal();
+  }
+});
+
+// ===== HERO PARTICLES =====
+// Lightweight CSS-animated golden particles — ~18 particles, no canvas, no GPU load
+(function initParticles(){
+  const container = document.getElementById('heroParticles');
+  if(!container) return;
+  const count = window.innerWidth < 500 ? 10 : 18; // fewer on mobile
+  for(let i = 0; i < count; i++){
+    const p = document.createElement('div');
+    p.className = 'hero-particle';
+    const size = Math.random() * 4 + 2; // 2-6px
+    const left = Math.random() * 100;
+    const delay = Math.random() * 6;
+    const duration = Math.random() * 4 + 4; // 4-8s
+    p.style.cssText = `
+      width:${size}px;height:${size}px;
+      left:${left}%;
+      bottom:${Math.random() * 30}%;
+      animation-delay:${delay}s;
+      animation-duration:${duration}s;
+    `;
+    container.appendChild(p);
+  }
+})();
+</script>
+
+</body>
+</html>
