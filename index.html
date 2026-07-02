@@ -260,6 +260,7 @@ header{
   display:flex;align-items:center;justify-content:center;
   font-size:3rem;position:relative;overflow:hidden;
 }
+.card-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
 .card-img model-viewer{width:100%;height:100%;background:transparent;--poster-color:transparent}
 
 .ar-tag{
@@ -643,7 +644,7 @@ footer{
 <div class="menu-section">
   <div class="section-header">
     <div class="section-title">Our Menu</div>
-    <div class="section-count" id="dishCount">13 Items</div>
+    <div class="section-count" id="dishCount">11 Items</div>
   </div>
   <div class="menu-grid" id="menuGrid">
     <!-- Cards injected by JS -->
@@ -759,6 +760,7 @@ const MENU = [
       {icon:'&#127850;',label:'Type',value:'Soft Drink'}
     ],
     emoji:'&#127866;',
+    thumbnail:'images/cola.jpg',
     hasAR:true,
     model:'models/l_cola.glb?v=5'
   },
@@ -778,6 +780,7 @@ const MENU = [
       {icon:'&#129480;',label:'Pav',value:'2 pcs'}
     ],
     emoji:'&#127835;',
+    thumbnail:'images/pav-bhaji.jpg',
     hasAR:true,
     model:'models/butter_pao_bhaji.glb?v=5',
     nutrition:{
@@ -811,6 +814,7 @@ const MENU = [
       {icon:'&#128207;',label:'Size',value:'300 ml'}
     ],
     emoji:'&#129371;',
+    thumbnail:'images/oreo-milkshake.jpg',
     hasAR:true,
     model:'models/oreo_milk_shake.glb?v=5'
   },
@@ -829,6 +833,7 @@ const MENU = [
       {icon:'&#127798;',label:'Spice',value:'Mild'}
     ],
     emoji:'&#127829;',
+    thumbnail:'images/pizza-cheese-dosa.jpg',
     hasAR:true,
     model:'models/pizza_cheese_roast_dosa.glb?v=5'
   },
@@ -847,40 +852,7 @@ const MENU = [
       {icon:'&#9202;',label:'Prep',value:'10 min'}
     ],
     emoji:'&#129480;',
-    hasAR:false
-  },
-  {
-    id:'sambar',
-    name:'Sambar',
-    nameHTML:'Fresh <span>Sambar</span>',
-    desc:'Warm lentil and vegetable stew simmered with South Indian spices.',
-    price:80,
-    category:'main',
-    veg:true,
-    tags:['&#127858; Lentils','&#127807; Veg','&#128293; Hot'],
-    specs:[
-      {icon:'&#127858;',label:'Base',value:'Lentil'},
-      {icon:'&#127798;',label:'Spice',value:'Medium'},
-      {icon:'&#129379;',label:'Serve',value:'Bowl'}
-    ],
-    emoji:'&#127858;',
-    hasAR:false
-  },
-  {
-    id:'chutney',
-    name:'Chutney',
-    nameHTML:'Coconut <span>Chutney</span>',
-    desc:'Fresh coconut chutney with roasted spices, curry leaves, and green chilli.',
-    price:50,
-    category:'starters',
-    veg:true,
-    tags:['&#129367; Coconut','&#127807; Fresh','&#127798; Mild'],
-    specs:[
-      {icon:'&#129367;',label:'Base',value:'Coconut'},
-      {icon:'&#127807;',label:'Type',value:'Fresh'},
-      {icon:'&#129379;',label:'Serve',value:'Side'}
-    ],
-    emoji:'&#129367;',
+    thumbnail:'images/plain-dosa.jpg',
     hasAR:false
   },
   {
@@ -898,6 +870,7 @@ const MENU = [
       {icon:'&#9889;',label:'Type',value:'Filter'}
     ],
     emoji:'&#9749;',
+    thumbnail:'images/coffee.jpg',
     hasAR:false
   },
   {
@@ -915,6 +888,7 @@ const MENU = [
       {icon:'&#127807;',label:'Type',value:'Tea'}
     ],
     emoji:'&#9749;',
+    thumbnail:'images/masala-chai.jpg',
     hasAR:false
   },
   {
@@ -932,6 +906,7 @@ const MENU = [
       {icon:'&#9202;',label:'Prep',value:'15 min'}
     ],
     emoji:'&#129472;',
+    thumbnail:'images/paneer-tikka.jpg',
     hasAR:false
   },
   {
@@ -949,6 +924,7 @@ const MENU = [
       {icon:'&#9202;',label:'Prep',value:'25 min'}
     ],
     emoji:'&#127858;',
+    thumbnail:'images/chicken-biryani.jpg',
     hasAR:false
   },
   {
@@ -966,6 +942,7 @@ const MENU = [
       {icon:'&#9202;',label:'Prep',value:'8 min'}
     ],
     emoji:'&#129480;',
+    thumbnail:'images/butter-naan.jpg',
     hasAR:false
   },
   {
@@ -983,6 +960,7 @@ const MENU = [
       {icon:'&#9202;',label:'Pcs',value:'2 pcs'}
     ],
     emoji:'&#127856;',
+    thumbnail:'images/gulab-jamun.jpg',
     hasAR:false
   }
 ];
@@ -1030,7 +1008,9 @@ function renderMenu(cat){
   grid.innerHTML = items.map(dish=>`
     <div class="dish-card ${dish.hasAR?'has-ar':''}" onclick="openDish('${dish.id}')">
       <div class="card-img">
-        <div style="font-size:3.5rem">${dish.emoji}</div>
+        ${dish.thumbnail
+          ? `<img src="${dish.thumbnail}" alt="${dish.name}" loading="lazy">`
+          : `<div style="font-size:3.5rem">${dish.emoji}</div>`}
         ${dish.hasAR ? '<div class="ar-tag">&#10024; 3D AR</div>' : ''}
         <div class="veg-badge ${dish.veg?'veg':'non-veg'}"></div>
       </div>
