@@ -483,6 +483,15 @@ header{
   color:#1a1208;border:none;
 }
 .btn-3d:active,.btn-ar:active{opacity:.85}
+.btn-share{
+  width:44px;flex-shrink:0;padding:14px 0;border:none;border-radius:14px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  color:#fff;font-size:1.1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;font-family:'DM Sans',sans-serif;
+}
+.btn-share:active{opacity:.85;transform:scale(.95)}
+.btn-share.shared{background:rgba(76,201,100,.15);border-color:rgba(76,201,100,.4);color:#4cc964}
 
 /* ===== FOOTER ===== */
 footer{
@@ -668,13 +677,14 @@ footer{
     <div class="tab-info" id="tabInfo">
       <div id="arExitHint" style="display:none;margin:10px 0;padding:10px 14px;background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-left:4px solid #FF6B35;border-radius:8px;color:#333;font-size:13px;font-weight:600;">&#9989; AR session ended. Tap <b>View 3D</b> below to reload the model.</div>
       <div class="modal-dish-hero">
-        <div class="modal-dish-emoji" id="modalEmoji">&#127866;</div>
+        <div class="modal-dish-emoji" id="modalEmoji"><img id="modalThumb" src="" alt="" style="display:none;width:100%;height:140px;object-fit:cover;border-radius:14px;margin-bottom:10px">&#127866;</div>
         <div class="modal-dish-name" id="modalDishName">Cold <span>Cola</span></div>
         <div class="modal-dish-desc" id="modalDishDesc">Description</div>
         <div class="modal-dish-price" id="modalDishPrice">&#8377;80</div>
         <div class="modal-tags" id="modalTags"></div>
       </div>
       <div class="modal-specs" id="modalSpecs"></div>
+      <div id="nutritionInfoStrip"></div>
     </div>
 
     <!-- 3D TAB (loads model only when clicked) -->
@@ -689,6 +699,7 @@ footer{
   <div class="modal-bottom">
     <button class="btn-3d" id="btn3D" onclick="switchTab('3d')">&#127922; View in 3D</button>
     <button class="btn-ar" id="btnAR" onclick="activateAR()">&#128247; AR</button>
+    <button class="btn-share" id="btnShare" onclick="shareDish()" title="Share">&#128228;</button>
   </div>
 </div>
 
@@ -762,7 +773,10 @@ const MENU = [
     emoji:'&#127866;',
     thumbnail:'images/cola.jpg',
     hasAR:true,
-    model:'models/l_cola.glb?v=5'
+    model:'models/l_cola.glb?v=5',
+    nutrition:{calories:'140 kcal',protein:'0g',carbs:'39g',fiber:'0g',fat:'0g',sodium:'45mg'},
+    ingredients:['Carbonated Water','Sugar','Caramel Color','Phosphoric Acid','Natural Flavors','Caffeine'],
+    allergens:[]
   },
   {
     id:'pav-bhaji',
@@ -816,7 +830,10 @@ const MENU = [
     emoji:'&#129371;',
     thumbnail:'images/oreo-milkshake.jpg',
     hasAR:true,
-    model:'models/oreo_milk_shake.glb?v=5'
+    model:'models/oreo_milk_shake.glb?v=5',
+    nutrition:{calories:'420 kcal',protein:'8g',carbs:'58g',fiber:'1g',fat:'18g',sodium:'280mg'},
+    ingredients:['Milk','Vanilla Ice Cream','Oreo Cookies','Whipped Cream','Sugar','Chocolate Syrup'],
+    allergens:['Dairy','Gluten']
   },
   {
     id:'pizza-cheese-dosa',
@@ -835,7 +852,10 @@ const MENU = [
     emoji:'&#127829;',
     thumbnail:'images/pizza-cheese-dosa.jpg',
     hasAR:true,
-    model:'models/pizza_cheese_roast_dosa.glb?v=5'
+    model:'models/pizza_cheese_roast_dosa.glb?v=5',
+    nutrition:{calories:'380 kcal',protein:'14g',carbs:'42g',fiber:'3g',fat:'18g',sodium:'520mg'},
+    ingredients:['Rice Batter','Urad Dal','Pizza Sauce','Mozzarella','Capsicum','Onion','Oregano','Olive Oil'],
+    allergens:['Dairy','Gluten']
   },
   {
     id:'plain-dosa',
@@ -853,7 +873,10 @@ const MENU = [
     ],
     emoji:'&#129480;',
     thumbnail:'images/plain-dosa.jpg',
-    hasAR:false
+    hasAR:false,
+    nutrition:{calories:'170 kcal',protein:'4g',carbs:'28g',fiber:'2g',fat:'5g',sodium:'220mg'},
+    ingredients:['Rice Batter','Urad Dal','Fenugreek Seeds','Salt','Oil'],
+    allergens:[]
   },
   {
     id:'coffee',
@@ -871,7 +894,10 @@ const MENU = [
     ],
     emoji:'&#9749;',
     thumbnail:'images/coffee.jpg',
-    hasAR:false
+    hasAR:false,
+    nutrition:{calories:'90 kcal',protein:'3g',carbs:'10g',fiber:'0g',fat:'4g',sodium:'50mg'},
+    ingredients:['Filter Coffee Powder','Chicory','Milk','Sugar','Water'],
+    allergens:['Dairy']
   },
   {
     id:'masala-chai',
@@ -889,7 +915,10 @@ const MENU = [
     ],
     emoji:'&#9749;',
     thumbnail:'images/masala-chai.jpg',
-    hasAR:false
+    hasAR:false,
+    nutrition:{calories:'80 kcal',protein:'2g',carbs:'12g',fiber:'0g',fat:'3g',sodium:'30mg'},
+    ingredients:['Assam Tea Leaves','Milk','Ginger','Cardamom','Cinnamon','Cloves','Sugar'],
+    allergens:['Dairy']
   },
   {
     id:'paneer-tikka',
@@ -907,7 +936,10 @@ const MENU = [
     ],
     emoji:'&#129472;',
     thumbnail:'images/paneer-tikka.jpg',
-    hasAR:false
+    hasAR:false,
+    nutrition:{calories:'290 kcal',protein:'18g',carbs:'8g',fiber:'2g',fat:'21g',sodium:'380mg'},
+    ingredients:['Paneer','Yogurt','Capsicum','Onion','Tandoori Masala','Ginger-Garlic','Lemon','Mint Chutney'],
+    allergens:['Dairy']
   },
   {
     id:'chicken-biryani',
@@ -925,7 +957,10 @@ const MENU = [
     ],
     emoji:'&#127858;',
     thumbnail:'images/chicken-biryani.jpg',
-    hasAR:false
+    hasAR:false,
+    nutrition:{calories:'450 kcal',protein:'28g',carbs:'52g',fiber:'3g',fat:'14g',sodium:'680mg'},
+    ingredients:['Basmati Rice','Chicken','Onion','Yogurt','Saffron','Biryani Masala','Ghee','Mint','Coriander','Bay Leaf'],
+    allergens:['Dairy']
   },
   {
     id:'butter-naan',
@@ -943,7 +978,10 @@ const MENU = [
     ],
     emoji:'&#129480;',
     thumbnail:'images/butter-naan.jpg',
-    hasAR:false
+    hasAR:false,
+    nutrition:{calories:'260 kcal',protein:'7g',carbs:'38g',fiber:'2g',fat:'9g',sodium:'340mg'},
+    ingredients:['Maida','Yogurt','Yeast','Sugar','Salt','Butter','Nigella Seeds','Coriander'],
+    allergens:['Dairy','Gluten']
   },
   {
     id:'gulab-jamun',
@@ -961,7 +999,10 @@ const MENU = [
     ],
     emoji:'&#127856;',
     thumbnail:'images/gulab-jamun.jpg',
-    hasAR:false
+    hasAR:false,
+    nutrition:{calories:'310 kcal',protein:'5g',carbs:'48g',fiber:'0g',fat:'12g',sodium:'90mg'},
+    ingredients:['Khoya','Maida','Sugar','Rose Water','Cardamom','Ghee','Pistachio','Saffron'],
+    allergens:['Dairy','Gluten','Nuts']
   }
 ];
 
@@ -1088,6 +1129,17 @@ function openDish(id){
     ? `<span style="font-size:.9rem;color:rgba(255,255,255,.3);text-decoration:line-through;margin-right:8px">&#8377;${dish.oldPrice}</span>`
     : '') + `&#8377;${dish.price}`;
 
+  // Show thumbnail in modal if available
+  const thumbEl = document.getElementById('modalThumb');
+  if(dish.thumbnail){
+    thumbEl.src = dish.thumbnail;
+    thumbEl.alt = dish.name;
+    thumbEl.style.display = 'block';
+    document.getElementById('modalEmoji').querySelector('span') || (document.getElementById('modalEmoji').childNodes.forEach(n => { if(n.nodeType === 3) n.textContent = ''; }));
+  } else {
+    thumbEl.style.display = 'none';
+  }
+
   document.getElementById('modalTags').innerHTML = dish.tags.map(t=>`<div class="modal-tag">${t}</div>`).join('');
   document.getElementById('modalSpecs').innerHTML = dish.specs.map(s=>`
     <div class="modal-spec">
@@ -1096,6 +1148,41 @@ function openDish(id){
       <div class="modal-spec-value">${s.value}</div>
     </div>
   `).join('');
+
+  // Render nutrition on info tab
+  const infoStrip = document.getElementById('nutritionInfoStrip');
+  if(infoStrip && dish.nutrition){
+    const n = dish.nutrition;
+    const ing = dish.ingredients || [];
+    const allerg = dish.allergens || [];
+    infoStrip.className = 'nutrition-strip';
+    infoStrip.innerHTML = `
+      <div class="nutrition-title">&#128202; Nutrition Facts</div>
+      <div class="nutrition-grid">
+        ${n.calories?`<div class="nutri-box"><div class="nutri-icon">&#128293;</div><div class="nutri-value">${n.calories.replace(' kcal','')}</div><div class="nutri-label">kcal</div></div>`:''}
+        ${n.protein?`<div class="nutri-box"><div class="nutri-icon">&#128170;</div><div class="nutri-value">${n.protein}</div><div class="nutri-label">Protein</div></div>`:''}
+        ${n.carbs?`<div class="nutri-box"><div class="nutri-icon">&#127838;</div><div class="nutri-value">${n.carbs}</div><div class="nutri-label">Carbs</div></div>`:''}
+        ${n.fat?`<div class="nutri-box"><div class="nutri-icon">&#129408;</div><div class="nutri-value">${n.fat}</div><div class="nutri-label">Fat</div></div>`:''}
+        ${n.fiber?`<div class="nutri-box"><div class="nutri-icon">&#129389;</div><div class="nutri-value">${n.fiber}</div><div class="nutri-label">Fiber</div></div>`:''}
+        ${n.sodium?`<div class="nutri-box"><div class="nutri-icon">&#129474;</div><div class="nutri-value">${n.sodium}</div><div class="nutri-label">Sodium</div></div>`:''}
+      </div>
+      ${ing.length?`
+      <div class="ingredients-section">
+        <div class="ingredients-label">&#127859; Ingredients</div>
+        <div class="ingredients-list">
+          ${ing.map(i=>`<span class="ingredient-chip">${i}</span>`).join('')}
+        </div>
+        ${allerg.length?`
+        <div class="allergen-row">
+          <span>&#9888;&#65039; Contains:</span>
+          ${allerg.map(a=>`<span class="allergen-chip">${a}</span>`).join('')}
+        </div>`:''}
+      </div>`:''}
+    `;
+  } else if(infoStrip){
+    infoStrip.innerHTML = '';
+    infoStrip.className = '';
+  }
 
   // Properly dispose any previous model (prevents WebGL context accumulation)
   disposeModelViewer();
@@ -1564,6 +1651,64 @@ window.addEventListener('popstate',()=>{
     closeModal();
   }
 });
+
+// ===== SHARE DISH =====
+async function shareDish(){
+  if(!currentDish) return;
+  const dish = currentDish;
+  const shareUrl = window.location.origin + window.location.pathname + '?dish=' + dish.id;
+  const shareText = `Check out ${dish.name} (₹${dish.price}) on ${CONFIG.name}! ${dish.desc.slice(0,80)}...`;
+  const shareTitle = `${dish.name} — ${CONFIG.name}`;
+
+  const btn = document.getElementById('btnShare');
+
+  // Try Web Share API first (mobile native sharing)
+  if(navigator.share){
+    try{
+      // If 3D model is loaded, try to capture screenshot
+      const mv = document.getElementById('arModel');
+      let shareData = { title: shareTitle, text: shareText, url: shareUrl };
+      if(mv && typeof mv.toBlob === 'function'){
+        try{
+          const blob = await mv.toBlob({idealAspect:true});
+          const file = new File([blob], dish.id + '-3d.png', {type:'image/png'});
+          if(navigator.canShare && navigator.canShare({files:[file]})){
+            shareData.files = [file];
+          }
+        }catch(_){}
+      }
+      await navigator.share(shareData);
+      // Success feedback
+      btn.classList.add('shared');
+      btn.innerHTML = '&#10003;';
+      setTimeout(()=>{ btn.classList.remove('shared'); btn.innerHTML = '&#128228;'; }, 2000);
+      return;
+    }catch(e){
+      if(e.name === 'AbortError') return; // user cancelled
+    }
+  }
+
+  // Fallback: copy link + show tooltip
+  try{
+    await navigator.clipboard.writeText(shareUrl);
+    btn.classList.add('shared');
+    btn.innerHTML = '&#10003;';
+    // Show brief toast
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);color:#4cc964;padding:10px 20px;border-radius:12px;font-size:.8rem;z-index:999;animation:fadeIn .3s';
+    toast.textContent = '✓ Link copied! Share it anywhere';
+    document.body.appendChild(toast);
+    setTimeout(()=>{
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity .3s';
+      setTimeout(()=>toast.remove(), 300);
+    }, 2000);
+    setTimeout(()=>{ btn.classList.remove('shared'); btn.innerHTML = '&#128228;'; }, 2500);
+  }catch(_){
+    // Ultimate fallback: open WhatsApp share
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}`, '_blank');
+  }
+}
 
 // ===== HERO PARTICLES =====
 // Lightweight CSS-animated golden particles — ~18 particles, no canvas, no GPU load
