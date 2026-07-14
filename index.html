@@ -197,6 +197,135 @@ header{
 .special-off{background:#c9a84c;color:#1a1208;font-size:.55rem;padding:2px 8px;border-radius:10px;font-weight:700}
 .special-arrow{color:rgba(201,168,76,.6);font-size:1.2rem}
 
+/* ===== SEARCH BAR ===== */
+.search-wrap{
+  padding:12px 16px 0;
+}
+.search-box{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;padding:10px 16px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.search-box:focus-within{
+  border-color:rgba(201,168,76,.4);
+  box-shadow:0 0 0 3px rgba(201,168,76,.08);
+}
+.search-box svg{width:18px;height:18px;flex-shrink:0;opacity:.35}
+.search-input{
+  flex:1;background:none;border:none;outline:none;
+  color:#fff;font-size:.85rem;font-family:'DM Sans',sans-serif;
+}
+.search-input::placeholder{color:rgba(255,255,255,.3)}
+.search-clear{
+  width:22px;height:22px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);
+  font-size:.7rem;cursor:pointer;display:none;
+  align-items:center;justify-content:center;
+  transition:background .2s;
+}
+.search-clear.show{display:flex}
+.search-clear:hover{background:rgba(255,255,255,.2)}
+
+/* ===== FILTER BUTTON ===== */
+.filter-btn{
+  width:40px;height:40px;flex-shrink:0;border:none;border-radius:12px;
+  background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  position:relative;transition:all .2s;
+}
+.filter-btn:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)}
+.filter-btn.has-filters{background:rgba(201,168,76,.12);color:#c9a84c;border:1px solid rgba(201,168,76,.3)}
+.filter-btn svg{width:18px;height:18px}
+.filter-badge{
+  position:absolute;top:-4px;right:-4px;width:18px;height:18px;
+  background:#c9a84c;color:#1a1208;border-radius:50%;font-size:.6rem;
+  font-weight:700;display:none;align-items:center;justify-content:center;
+  font-family:'DM Sans',sans-serif;
+}
+.filter-badge.show{display:flex}
+
+/* ===== FILTER BOTTOM SHEET ===== */
+.filter-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:900;
+  opacity:0;visibility:hidden;transition:opacity .3s;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.filter-overlay.open{opacity:1;visibility:visible}
+.filter-sheet{
+  position:fixed;bottom:0;left:0;right:0;z-index:901;
+  background:linear-gradient(180deg,#1a1a24 0%,#12121a 100%);
+  border-radius:20px 20px 0 0;max-height:75vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);
+  -ms-overflow-style:none;scrollbar-width:none;
+}
+.filter-sheet::-webkit-scrollbar{display:none}
+.filter-overlay.open .filter-sheet{transform:translateY(0)}
+.filter-handle{
+  width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:4px;
+  margin:10px auto 0;
+}
+.filter-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,.06);
+}
+.filter-title{font-size:1rem;font-weight:700;color:#fff;font-family:'Playfair Display',serif}
+.filter-close{
+  width:30px;height:30px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);
+  font-size:.85rem;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;transition:background .2s;
+}
+.filter-close:hover{background:rgba(255,255,255,.15)}
+
+.filter-section{padding:14px 20px 10px}
+.filter-section-title{
+  font-size:.7rem;text-transform:uppercase;letter-spacing:1px;
+  color:rgba(201,168,76,.7);font-weight:700;margin-bottom:10px;
+  font-family:'DM Sans',sans-serif;
+}
+.filter-options{display:flex;flex-wrap:wrap;gap:8px}
+.filter-opt{
+  padding:8px 16px;border-radius:10px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  color:rgba(255,255,255,.5);font-size:.78rem;cursor:pointer;
+  transition:all .2s;user-select:none;font-family:'DM Sans',sans-serif;
+}
+.filter-opt:hover{border-color:rgba(255,255,255,.18);color:rgba(255,255,255,.7)}
+.filter-opt.selected{
+  background:rgba(201,168,76,.12);border-color:rgba(201,168,76,.4);
+  color:#c9a84c;font-weight:600;
+}
+
+.filter-footer{
+  display:flex;gap:10px;padding:14px 20px 20px;position:sticky;bottom:0;
+  background:linear-gradient(0deg,#12121a 60%,transparent);
+  padding-top:24px;
+}
+.filter-footer button{
+  flex:1;padding:13px;border-radius:12px;font-size:.82rem;
+  font-weight:700;cursor:pointer;transition:all .2s;
+  font-family:'DM Sans',sans-serif;
+}
+.btn-clear-filters{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.5);
+}
+.btn-clear-filters:hover{background:rgba(255,255,255,.1)}
+.btn-apply-filters{
+  background:linear-gradient(135deg,#c9a84c,#e8d48b);border:none;
+  color:#1a1208;
+}
+.btn-apply-filters:hover{opacity:.9}
+
+/* ===== NO RESULTS ===== */
+.no-results{
+  grid-column:1/-1;text-align:center;padding:40px 20px;
+}
+.no-results-icon{font-size:3rem;margin-bottom:12px;opacity:.4}
+.no-results-text{font-size:.9rem;color:rgba(255,255,255,.4);margin-bottom:6px}
+.no-results-hint{font-size:.75rem;color:rgba(255,255,255,.25)}
+
 /* ===== CATEGORY TABS ===== */
 .categories{
   padding:20px 16px 0;
@@ -640,6 +769,70 @@ footer{
   <div class="special-arrow">&#10095;</div>
 </div>
 
+<!-- ===== SEARCH BAR ===== -->
+<div class="search-wrap">
+  <div class="search-box">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+    <input class="search-input" id="searchInput" type="text" placeholder="Search dishes, ingredients..." autocomplete="off">
+    <button class="search-clear" id="searchClear" onclick="clearSearch()">&times;</button>
+    <button class="filter-btn" id="filterBtn" onclick="openFilterSheet()">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 4h18M6 8h12M9 12h6M11 16h2" stroke-linecap="round"/></svg>
+      <span class="filter-badge" id="filterBadge">0</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== FILTER BOTTOM SHEET ===== -->
+<div class="filter-overlay" id="filterOverlay" onclick="closeFilterSheet()">
+  <div class="filter-sheet" onclick="event.stopPropagation()">
+    <div class="filter-handle"></div>
+    <div class="filter-header">
+      <div class="filter-title">&#9881; Sort &amp; Filter</div>
+      <button class="filter-close" onclick="closeFilterSheet()">&times;</button>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-section-title">&#128260; Sort By</div>
+      <div class="filter-options" data-group="sort">
+        <div class="filter-opt" data-sort="default">Default</div>
+        <div class="filter-opt" data-sort="price-low">Price: Low &#8594; High</div>
+        <div class="filter-opt" data-sort="price-high">Price: High &#8594; Low</div>
+        <div class="filter-opt" data-sort="popular">&#11088; Popular First</div>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-section-title">&#127807; Dietary</div>
+      <div class="filter-options" data-group="dietary">
+        <div class="filter-opt" data-filter="veg">&#127807; Veg Only</div>
+        <div class="filter-opt" data-filter="non-veg">&#127356; Non-Veg</div>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-section-title">&#128176; Price Range</div>
+      <div class="filter-options" data-group="price">
+        <div class="filter-opt" data-filter="under100">Under &#8377;100</div>
+        <div class="filter-opt" data-filter="100to200">&#8377;100 &ndash; &#8377;200</div>
+        <div class="filter-opt" data-filter="above200">&#8377;200+</div>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-section-title">&#10024; Features</div>
+      <div class="filter-options" data-group="features">
+        <div class="filter-opt" data-filter="ar">&#127922; Has 3D/AR</div>
+        <div class="filter-opt" data-filter="bestseller">&#11088; Bestseller</div>
+      </div>
+    </div>
+
+    <div class="filter-footer">
+      <button class="btn-clear-filters" onclick="clearAllFilters()">Clear All</button>
+      <button class="btn-apply-filters" onclick="applyFilters()">Apply Filters</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== CATEGORY TABS ===== -->
 <div class="categories">
   <div class="cat-tab active" data-cat="all">&#127860; All</div>
@@ -776,7 +969,8 @@ const MENU = [
     model:'models/l_cola.glb?v=5',
     nutrition:{calories:'140 kcal',protein:'0g',carbs:'39g',fiber:'0g',fat:'0g',sodium:'45mg'},
     ingredients:['Carbonated Water','Sugar','Caramel Color','Phosphoric Acid','Natural Flavors','Caffeine'],
-    allergens:[]
+    allergens:[],
+    keywords:['cold','chilled','ice','fizzy','soda','coke','soft drink','refreshing','summer','bottle','thanda','carbonated','drink','pepsi']
   },
   {
     id:'pav-bhaji',
@@ -807,6 +1001,7 @@ const MENU = [
     },
     ingredients:['Potato','Peas','Onion','Tomato','Capsicum','Butter','Pav Buns','Pav Bhaji Masala','Ginger-Garlic','Coriander'],
     allergens:['Dairy','Gluten'],
+    keywords:['hot','spicy','mumbai','street food','butter','vegetables','potato','indian','mashed','curry','sabzi','masala','snack','famous','popular'],
     hotspots:[
       {side:'left',emoji:'&#129480;',label:'Pav',info:'2 toasted buns'},
       {side:'right',emoji:'&#127798;',label:'Bhaji',info:'Spicy veggie mash'},
@@ -833,7 +1028,8 @@ const MENU = [
     model:'models/oreo_milk_shake.glb?v=5',
     nutrition:{calories:'420 kcal',protein:'8g',carbs:'58g',fiber:'1g',fat:'18g',sodium:'280mg'},
     ingredients:['Milk','Vanilla Ice Cream','Oreo Cookies','Whipped Cream','Sugar','Chocolate Syrup'],
-    allergens:['Dairy','Gluten']
+    allergens:['Dairy','Gluten'],
+    keywords:['cold','chilled','ice cream','chocolate','cookies','shake','thick shake','creamy','sweet','frozen','summer','dessert drink','milkshake','smoothie']
   },
   {
     id:'pizza-cheese-dosa',
@@ -855,7 +1051,8 @@ const MENU = [
     model:'models/pizza_cheese_roast_dosa.glb?v=5',
     nutrition:{calories:'380 kcal',protein:'14g',carbs:'42g',fiber:'3g',fat:'18g',sodium:'520mg'},
     ingredients:['Rice Batter','Urad Dal','Pizza Sauce','Mozzarella','Capsicum','Onion','Oregano','Olive Oil'],
-    allergens:['Dairy','Gluten']
+    allergens:['Dairy','Gluten'],
+    keywords:['cheesy','pizza','italian','fusion','crispy','roasted','south indian','cheese','mozzarella','hot','crunchy','creative','unique','trending']
   },
   {
     id:'plain-dosa',
@@ -876,7 +1073,8 @@ const MENU = [
     hasAR:false,
     nutrition:{calories:'170 kcal',protein:'4g',carbs:'28g',fiber:'2g',fat:'5g',sodium:'220mg'},
     ingredients:['Rice Batter','Urad Dal','Fenugreek Seeds','Salt','Oil'],
-    allergens:[]
+    allergens:[],
+    keywords:['crispy','south indian','breakfast','healthy','light','classic','traditional','simple','rice','fermented','nashta','morning','tiffin','hot']
   },
   {
     id:'coffee',
@@ -897,7 +1095,8 @@ const MENU = [
     hasAR:false,
     nutrition:{calories:'90 kcal',protein:'3g',carbs:'10g',fiber:'0g',fat:'4g',sodium:'50mg'},
     ingredients:['Filter Coffee Powder','Chicory','Milk','Sugar','Water'],
-    allergens:['Dairy']
+    allergens:['Dairy'],
+    keywords:['hot','south indian','strong','kaapi','morning','caffeine','traditional','decoction','frothy','warm','wake up','energy','filter kaapi']
   },
   {
     id:'masala-chai',
@@ -918,7 +1117,8 @@ const MENU = [
     hasAR:false,
     nutrition:{calories:'80 kcal',protein:'2g',carbs:'12g',fiber:'0g',fat:'3g',sodium:'30mg'},
     ingredients:['Assam Tea Leaves','Milk','Ginger','Cardamom','Cinnamon','Cloves','Sugar'],
-    allergens:['Dairy']
+    allergens:['Dairy'],
+    keywords:['hot','tea','ginger','adrak','elaichi','spiced','morning','cutting chai','indian tea','warm','comfort','doodh','kadak']
   },
   {
     id:'paneer-tikka',
@@ -939,7 +1139,8 @@ const MENU = [
     hasAR:false,
     nutrition:{calories:'290 kcal',protein:'18g',carbs:'8g',fiber:'2g',fat:'21g',sodium:'380mg'},
     ingredients:['Paneer','Yogurt','Capsicum','Onion','Tandoori Masala','Ginger-Garlic','Lemon','Mint Chutney'],
-    allergens:['Dairy']
+    allergens:['Dairy'],
+    keywords:['smoky','grilled','tandoor','cottage cheese','bbq','barbecue','appetizer','north indian','spicy','starter','hot','kebab','tikka','protein','healthy']
   },
   {
     id:'chicken-biryani',
@@ -960,7 +1161,8 @@ const MENU = [
     hasAR:false,
     nutrition:{calories:'450 kcal',protein:'28g',carbs:'52g',fiber:'3g',fat:'14g',sodium:'680mg'},
     ingredients:['Basmati Rice','Chicken','Onion','Yogurt','Saffron','Biryani Masala','Ghee','Mint','Coriander','Bay Leaf'],
-    allergens:['Dairy']
+    allergens:['Dairy'],
+    keywords:['rice','dum','hyderabadi','mughlai','aromatic','saffron','non veg','meat','spicy','hot','lunch','dinner','filling','heavy','protein','famous','popular']
   },
   {
     id:'butter-naan',
@@ -981,7 +1183,8 @@ const MENU = [
     hasAR:false,
     nutrition:{calories:'260 kcal',protein:'7g',carbs:'38g',fiber:'2g',fat:'9g',sodium:'340mg'},
     ingredients:['Maida','Yogurt','Yeast','Sugar','Salt','Butter','Nigella Seeds','Coriander'],
-    allergens:['Dairy','Gluten']
+    allergens:['Dairy','Gluten'],
+    keywords:['bread','tandoor','roti','indian bread','fluffy','soft','hot','side dish','accompaniment','fresh','baked','warm','dal','curry']
   },
   {
     id:'gulab-jamun',
@@ -1002,7 +1205,8 @@ const MENU = [
     hasAR:false,
     nutrition:{calories:'310 kcal',protein:'5g',carbs:'48g',fiber:'0g',fat:'12g',sodium:'90mg'},
     ingredients:['Khoya','Maida','Sugar','Rose Water','Cardamom','Ghee','Pistachio','Saffron'],
-    allergens:['Dairy','Gluten','Nuts']
+    allergens:['Dairy','Gluten','Nuts'],
+    keywords:['sweet','dessert','mithai','festive','warm','fried','syrup','rose','celebration','indian sweet','meetha','party','occasion','traditional','gulaab']
   }
 ];
 
@@ -1041,10 +1245,56 @@ window.addEventListener('load',()=>{
 
 // ===== RENDER MENU =====
 let currentCat = 'all';
+let searchQuery = '';
+let activeFilters = new Set();
+let currentSort = 'default';
+
 function renderMenu(cat){
   const grid = document.getElementById('menuGrid');
-  const items = cat==='all' ? MENU : MENU.filter(d=>d.category===cat);
+  let items = cat==='all' ? [...MENU] : MENU.filter(d=>d.category===cat);
+
+  // Apply search
+  if(searchQuery){
+    const q = searchQuery.toLowerCase();
+    items = items.filter(d =>
+      d.name.toLowerCase().includes(q) ||
+      d.desc.toLowerCase().includes(q) ||
+      (d.ingredients && d.ingredients.some(i => i.toLowerCase().includes(q))) ||
+      (d.keywords && d.keywords.some(k => k.toLowerCase().includes(q))) ||
+      (d.allergens && d.allergens.some(a => a.toLowerCase().includes(q))) ||
+      d.category.toLowerCase().includes(q)
+    );
+  }
+
+  // Apply smart filters
+  if(activeFilters.has('veg'))        items = items.filter(d => d.veg);
+  if(activeFilters.has('non-veg'))    items = items.filter(d => !d.veg);
+  if(activeFilters.has('ar'))         items = items.filter(d => d.hasAR);
+  if(activeFilters.has('under100'))   items = items.filter(d => d.price < 100);
+  if(activeFilters.has('100to200'))   items = items.filter(d => d.price >= 100 && d.price <= 200);
+  if(activeFilters.has('above200'))   items = items.filter(d => d.price > 200);
+  if(activeFilters.has('bestseller')) items = items.filter(d => d.tags && d.tags.some(t => t.includes('Bestseller') || t.includes('Popular')));
+
+  // Apply sort
+  if(currentSort === 'price-low')  items.sort((a,b) => a.price - b.price);
+  if(currentSort === 'price-high') items.sort((a,b) => b.price - a.price);
+  if(currentSort === 'popular')    items.sort((a,b) => {
+    const aPop = a.tags && a.tags.some(t => t.includes('Bestseller') || t.includes('Popular')) ? 1 : 0;
+    const bPop = b.tags && b.tags.some(t => t.includes('Bestseller') || t.includes('Popular')) ? 1 : 0;
+    return bPop - aPop;
+  });
+
   document.getElementById('dishCount').textContent = items.length + ' Items';
+
+  if(items.length === 0){
+    grid.innerHTML = `
+      <div class="no-results">
+        <div class="no-results-icon">&#128533;</div>
+        <div class="no-results-text">No dishes found</div>
+        <div class="no-results-hint">${searchQuery ? 'Try a different search term' : 'Try removing some filters'}</div>
+      </div>`;
+    return;
+  }
 
   grid.innerHTML = items.map(dish=>`
     <div class="dish-card ${dish.hasAR?'has-ar':''}" onclick="openDish('${dish.id}')">
@@ -1067,6 +1317,102 @@ function renderMenu(cat){
   `).join('');
 }
 renderMenu('all');
+
+// ===== SEARCH =====
+const searchInput = document.getElementById('searchInput');
+const searchClear = document.getElementById('searchClear');
+let searchDebounce;
+searchInput.addEventListener('input', ()=>{
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(()=>{
+    searchQuery = searchInput.value.trim();
+    searchClear.classList.toggle('show', searchQuery.length > 0);
+    renderMenu(currentCat);
+  }, 200);
+});
+function clearSearch(){
+  searchInput.value = '';
+  searchQuery = '';
+  searchClear.classList.remove('show');
+  renderMenu(currentCat);
+  searchInput.focus();
+}
+
+// ===== FILTER BOTTOM SHEET =====
+let pendingFilters = new Set();
+let pendingSort = 'default';
+
+function openFilterSheet(){
+  // Sync pending state with current active state
+  pendingFilters = new Set(activeFilters);
+  pendingSort = currentSort;
+  // Reflect current state in sheet UI
+  document.querySelectorAll('.filter-opt[data-filter]').forEach(o => {
+    o.classList.toggle('selected', pendingFilters.has(o.dataset.filter));
+  });
+  document.querySelectorAll('.filter-opt[data-sort]').forEach(o => {
+    o.classList.toggle('selected', o.dataset.sort === pendingSort);
+  });
+  document.getElementById('filterOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeFilterSheet(){
+  document.getElementById('filterOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Handle filter option clicks inside sheet
+document.querySelectorAll('.filter-opt[data-filter]').forEach(opt => {
+  opt.addEventListener('click', () => {
+    const f = opt.dataset.filter;
+    const group = opt.closest('.filter-options').dataset.group;
+    // Price & dietary filters are mutually exclusive within their group
+    if(group === 'price' || group === 'dietary'){
+      opt.closest('.filter-options').querySelectorAll('.filter-opt').forEach(o => {
+        if(o !== opt){ o.classList.remove('selected'); pendingFilters.delete(o.dataset.filter); }
+      });
+    }
+    if(opt.classList.contains('selected')){
+      opt.classList.remove('selected');
+      pendingFilters.delete(f);
+    } else {
+      opt.classList.add('selected');
+      pendingFilters.add(f);
+    }
+  });
+});
+
+// Handle sort option clicks
+document.querySelectorAll('.filter-opt[data-sort]').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.filter-opt[data-sort]').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    pendingSort = opt.dataset.sort;
+  });
+});
+
+function applyFilters(){
+  activeFilters = new Set(pendingFilters);
+  currentSort = pendingSort;
+  updateFilterBadge();
+  renderMenu(currentCat);
+  closeFilterSheet();
+}
+
+function clearAllFilters(){
+  pendingFilters.clear();
+  pendingSort = 'default';
+  document.querySelectorAll('.filter-opt').forEach(o => o.classList.remove('selected'));
+}
+
+function updateFilterBadge(){
+  const count = activeFilters.size + (currentSort !== 'default' ? 1 : 0);
+  const badge = document.getElementById('filterBadge');
+  const btn = document.getElementById('filterBtn');
+  badge.textContent = count;
+  badge.classList.toggle('show', count > 0);
+  btn.classList.toggle('has-filters', count > 0);
+}
 
 // Auto-restore dish from URL hash (after a reload from AR exit)
 (function restoreFromHash(){
