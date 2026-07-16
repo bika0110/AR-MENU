@@ -478,6 +478,26 @@ header{
   font-size:.8rem;transition:all .3s;
 }
 .card-ar-btn:hover{background:rgba(201,168,76,.3)}
+.card-add-btn{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,#c9a84c,#a07830);border:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;font-weight:700;color:#1a1208;cursor:pointer;
+  transition:transform .15s;flex-shrink:0;
+}
+.card-add-btn:active{transform:scale(.85)}
+.card-bottom-right{display:flex;align-items:center;gap:6px}
+.card-qty-stepper{
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,#c9a84c,#a07830);
+  border-radius:20px;padding:4px 6px;
+}
+.card-qty-stepper button{
+  width:22px;height:22px;border-radius:50%;border:none;
+  background:rgba(26,18,8,.2);color:#1a1208;font-weight:700;font-size:.85rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.card-qty-stepper span{color:#1a1208;font-weight:700;font-size:.78rem;min-width:14px;text-align:center}
 
 /* ===== AR VIEWER MODAL ===== */
 .modal-overlay{
@@ -540,6 +560,26 @@ header{
 .modal-dish-name span{color:#c9a84c}
 .modal-dish-desc{font-size:.82rem;color:rgba(255,255,255,.45);line-height:1.6;margin-bottom:12px;max-width:360px}
 .modal-dish-price{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:#c9a84c;margin-bottom:16px}
+.modal-cart-cta{margin-bottom:16px}
+.btn-add-to-cart{
+  padding:12px 28px;border-radius:30px;border:none;
+  background:linear-gradient(135deg,#c9a84c,#a07830);color:#1a1208;
+  font-size:.85rem;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:8px;
+  transition:transform .15s;
+}
+.btn-add-to-cart:active{transform:scale(.96)}
+.modal-qty-stepper{
+  display:inline-flex;align-items:center;gap:16px;
+  background:linear-gradient(135deg,#c9a84c,#a07830);
+  border-radius:30px;padding:8px 10px;
+}
+.modal-qty-stepper button{
+  width:30px;height:30px;border-radius:50%;border:none;
+  background:rgba(26,18,8,.2);color:#1a1208;font-weight:700;font-size:1.1rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.modal-qty-stepper span{color:#1a1208;font-weight:700;font-size:.95rem;min-width:18px;text-align:center;font-family:'Playfair Display',serif}
 .modal-tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
 .modal-tag{
   background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
@@ -766,6 +806,80 @@ footer{
 }
 .ar-dont-show input{cursor:pointer;accent-color:#c9a84c}
 
+/* ===== CART BAR (sticky, appears when cart has items) ===== */
+.cart-bar{
+  position:fixed;left:0;right:0;bottom:0;z-index:95;
+  background:linear-gradient(135deg,#c9a84c,#a07830);
+  color:#1a1208;padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;box-shadow:0 -4px 24px rgba(0,0,0,.35);
+  transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);
+}
+.cart-bar.show{transform:translateY(0)}
+.cart-bar-info{display:flex;align-items:center;gap:8px}
+.cart-bar-count{
+  background:rgba(26,18,8,.2);width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;
+}
+.cart-bar-text{font-size:.8rem;font-weight:600}
+.cart-bar-right{display:flex;align-items:center;gap:10px}
+.cart-bar-total{font-family:'Playfair Display',serif;font-weight:700;font-size:1rem}
+.cart-bar-view{font-size:.78rem;font-weight:700;display:flex;align-items:center;gap:2px}
+
+body.cart-bar-visible .whatsapp-float{bottom:94px}
+body.cart-bar-visible .waiter-float{bottom:162px}
+
+/* ===== CART SHEET (bottom sheet, reuses filter-sheet visual language) ===== */
+.cart-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:900;
+  opacity:0;visibility:hidden;transition:opacity .3s;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.cart-overlay.open{opacity:1;visibility:visible}
+.cart-sheet{
+  position:fixed;bottom:0;left:0;right:0;z-index:901;
+  background:linear-gradient(180deg,#1a1a24 0%,#12121a 100%);
+  border-radius:20px 20px 0 0;max-height:80vh;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);
+}
+.cart-overlay.open .cart-sheet{transform:translateY(0)}
+.cart-items-list{overflow-y:auto;padding:8px 20px;flex:1}
+.cart-item-row{
+  display:flex;align-items:center;gap:12px;padding:12px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.cart-item-row img,.cart-item-emoji{
+  width:44px;height:44px;border-radius:10px;object-fit:cover;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+  background:rgba(255,255,255,.05);
+}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-name{font-size:.85rem;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-item-price{font-size:.75rem;color:#c9a84c;font-weight:700}
+.cart-item-remove{
+  width:24px;height:24px;border-radius:50%;border:none;
+  background:rgba(231,76,60,.12);color:#e77b70;font-size:.75rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.cart-empty{text-align:center;padding:40px 20px;color:rgba(255,255,255,.4);font-size:.85rem}
+.cart-sheet-footer{
+  padding:14px 20px 20px;border-top:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.2);flex-shrink:0;
+}
+.cart-total-row{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:12px;font-size:.9rem;font-weight:600;
+}
+.cart-total-row span:last-child{font-family:'Playfair Display',serif;color:#c9a84c;font-size:1.2rem;font-weight:700}
+.cart-table-note{font-size:.7rem;color:rgba(255,255,255,.4);margin-bottom:10px;text-align:center}
+.btn-send-order{
+  width:100%;padding:14px;border:none;border-radius:14px;
+  background:#25D366;color:#fff;font-size:.88rem;font-weight:700;
+  cursor:pointer;font-family:'DM Sans',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-send-order:active{opacity:.85}
+
 /* ===== RESPONSIVE ===== */
 @media(min-width:500px){
   .menu-grid{grid-template-columns:repeat(3,1fr)}
@@ -928,6 +1042,7 @@ footer{
         <div class="modal-dish-name" id="modalDishName">Cold <span>Cola</span></div>
         <div class="modal-dish-desc" id="modalDishDesc">Description</div>
         <div class="modal-dish-price" id="modalDishPrice">&#8377;80</div>
+        <div class="modal-cart-cta" id="modalCartCta"></div>
         <div class="modal-tags" id="modalTags"></div>
       </div>
       <div class="modal-specs" id="modalSpecs"></div>
@@ -1003,6 +1118,35 @@ footer{
     <label class="ar-dont-show">
       <input type="checkbox" id="arDontShow"> Don't show this again
     </label>
+  </div>
+</div>
+
+<!-- ===== CART BAR (sticky, shows when items added) ===== -->
+<div class="cart-bar" id="cartBar" onclick="openCartSheet()">
+  <div class="cart-bar-info">
+    <span class="cart-bar-count" id="cartBarCount">0</span>
+    <span class="cart-bar-text">items added</span>
+  </div>
+  <div class="cart-bar-right">
+    <span class="cart-bar-total" id="cartBarTotal">&#8377;0</span>
+    <span class="cart-bar-view">View Cart &#8250;</span>
+  </div>
+</div>
+
+<!-- ===== CART SHEET ===== -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCartSheet()">
+  <div class="cart-sheet" onclick="event.stopPropagation()">
+    <div class="filter-handle"></div>
+    <div class="filter-header">
+      <div class="filter-title">&#128722; Your Order</div>
+      <button class="filter-close" onclick="closeCartSheet()">&times;</button>
+    </div>
+    <div class="cart-items-list" id="cartItemsList"></div>
+    <div class="cart-sheet-footer" id="cartSheetFooter" style="display:none">
+      <div class="cart-total-row"><span>Total</span><span id="cartTotalAmount">&#8377;0</span></div>
+      <div class="cart-table-note" id="cartTableNote"></div>
+      <button class="btn-send-order" onclick="sendOrderWhatsApp()">&#128172; Send Order on WhatsApp</button>
+    </div>
   </div>
 </div>
 
@@ -1337,6 +1481,13 @@ let searchQuery = '';
 let activeFilters = new Set();
 let currentSort = 'default';
 
+// Cart state ({dishId: qty}) declared here (not down in the cart-engine
+// block) because renderMenu() runs synchronously below and its card
+// template reads `cart` immediately — a `let` declared later would still
+// be in the temporal dead zone at that point.
+let cart = {};
+try{ cart = JSON.parse(sessionStorage.getItem('cart') || '{}'); }catch(_){ cart = {}; }
+
 function renderMenu(cat){
   const grid = document.getElementById('menuGrid');
   let items = cat==='all' ? [...MENU] : MENU.filter(d=>d.category===cat);
@@ -1407,7 +1558,7 @@ function renderMenu(cat){
         <div class="card-desc">${dish.desc}</div>
         <div class="card-bottom">
           <div class="card-price">&#8377;${dish.price}</div>
-          ${dish.hasAR?'<div class="card-ar-btn">&#128247;</div>':''}
+          <div class="card-bottom-right" id="cardCartSlot-${dish.id}">${cartSlotHTML(dish)}</div>
         </div>
       </div>
     </div>
@@ -1594,6 +1745,7 @@ function openDish(id){
   document.getElementById('modalDishPrice').innerHTML = (dish.oldPrice
     ? `<span style="font-size:.9rem;color:rgba(255,255,255,.3);text-decoration:line-through;margin-right:8px">&#8377;${dish.oldPrice}</span>`
     : '') + `&#8377;${dish.price}`;
+  renderModalCartCta(dish.id);
 
   // Show thumbnail or emoji in modal hero
   const emojiContainer = document.getElementById('modalEmoji');
@@ -2203,10 +2355,16 @@ window.addEventListener('pageshow',(e)=>{
 
 
 // ===== SCROLL REVEAL =====
-const observer = new IntersectionObserver((entries)=>{
-  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});
-},{threshold:0.1});
-document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+// Guarded: an exception here must never cascade into the cart/waiter/special-
+// banner init code that runs later in this same script.
+try{
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});
+  },{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+}catch(_){
+  document.querySelectorAll('.reveal').forEach(el=>el.classList.add('visible'));
+}
 
 // ===== CLOSE MODAL ON BACK / REOPEN ON FORWARD =====
 window.addEventListener('popstate',()=>{
@@ -2285,6 +2443,157 @@ async function shareDish(){
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}`, '_blank');
   }
 }
+
+// ===== ORDER CART =====
+// (cart state itself is declared earlier, alongside currentCat/searchQuery,
+// so renderMenu's initial card template can read it without a TDZ error)
+function saveCart(){
+  try{ sessionStorage.setItem('cart', JSON.stringify(cart)); }catch(_){}
+}
+
+function cartCount(){
+  return Object.values(cart).reduce((s,q)=>s+q, 0);
+}
+function cartTotal(){
+  return Object.entries(cart).reduce((sum,[id,qty])=>{
+    const d = MENU.find(m=>m.id===id);
+    return sum + (d ? d.price*qty : 0);
+  }, 0);
+}
+
+function addToCart(id){
+  cart[id] = (cart[id] || 0) + 1;
+  saveCart();
+  renderCardCartSlot(id);
+  renderCartBar();
+  if(currentDish && currentDish.id === id) renderModalCartCta(id);
+}
+function changeQty(id, delta){
+  const q = (cart[id] || 0) + delta;
+  if(q <= 0) delete cart[id];
+  else cart[id] = q;
+  saveCart();
+  renderCardCartSlot(id);
+  renderCartBar();
+  if(currentDish && currentDish.id === id) renderModalCartCta(id);
+  if(document.getElementById('cartOverlay').classList.contains('open')) renderCartSheet();
+}
+
+// Shared by the initial grid render and by renderCardCartSlot, so a dish's
+// card always reflects the same add-button/stepper state as the live cart.
+function cartSlotHTML(dish){
+  const arBtn = dish.hasAR ? '<div class="card-ar-btn">&#128247;</div>' : '';
+  const qty = cart[dish.id] || 0;
+  return arBtn + (qty > 0
+    ? `<div class="card-qty-stepper" onclick="event.stopPropagation()">
+         <button onclick="changeQty('${dish.id}',-1)">&minus;</button>
+         <span>${qty}</span>
+         <button onclick="changeQty('${dish.id}',1)">&#43;</button>
+       </div>`
+    : `<button class="card-add-btn" onclick="event.stopPropagation();addToCart('${dish.id}')">&#43;</button>`);
+}
+
+// Re-render just one card's add-button/stepper slot — avoids a full grid
+// re-render (which would blow away scroll position and re-trigger card
+// entrance animations) every time a quantity changes.
+function renderCardCartSlot(id){
+  const slot = document.getElementById('cardCartSlot-' + id);
+  if(!slot) return;
+  const dish = MENU.find(d=>d.id===id);
+  if(!dish) return;
+  slot.innerHTML = cartSlotHTML(dish);
+}
+
+function renderModalCartCta(id){
+  const cta = document.getElementById('modalCartCta');
+  if(!cta) return;
+  const qty = cart[id] || 0;
+  cta.innerHTML = qty > 0
+    ? `<div class="modal-qty-stepper">
+         <button onclick="changeQty('${id}',-1)">&minus;</button>
+         <span>${qty}</span>
+         <button onclick="changeQty('${id}',1)">&#43;</button>
+       </div>`
+    : `<button class="btn-add-to-cart" onclick="addToCart('${id}')">&#128722; Add to Cart</button>`;
+}
+
+function renderCartBar(){
+  const bar = document.getElementById('cartBar');
+  const count = cartCount();
+  if(count > 0){
+    document.getElementById('cartBarCount').textContent = count;
+    document.getElementById('cartBarTotal').textContent = '₹' + cartTotal();
+    bar.classList.add('show');
+    document.body.classList.add('cart-bar-visible');
+  } else {
+    bar.classList.remove('show');
+    document.body.classList.remove('cart-bar-visible');
+  }
+}
+
+function renderCartSheet(){
+  const list = document.getElementById('cartItemsList');
+  const footer = document.getElementById('cartSheetFooter');
+  const ids = Object.keys(cart).filter(id => cart[id] > 0);
+  if(!ids.length){
+    list.innerHTML = `<div class="cart-empty">&#128722; Your cart is empty<br>Tap &#43; on any dish to add it</div>`;
+    footer.style.display = 'none';
+    return;
+  }
+  list.innerHTML = ids.map(id=>{
+    const d = MENU.find(m=>m.id===id);
+    if(!d) return '';
+    const qty = cart[id];
+    const img = d.thumbnail
+      ? `<img src="${d.thumbnail}" alt="${d.name}">`
+      : `<div class="cart-item-emoji">${d.emoji}</div>`;
+    return `
+      <div class="cart-item-row">
+        ${img}
+        <div class="cart-item-info">
+          <div class="cart-item-name">${d.name}</div>
+          <div class="cart-item-price">&#8377;${d.price} &times; ${qty} = &#8377;${d.price*qty}</div>
+        </div>
+        <div class="modal-qty-stepper">
+          <button onclick="changeQty('${id}',-1)">&minus;</button>
+          <span>${qty}</span>
+          <button onclick="changeQty('${id}',1)">&#43;</button>
+        </div>
+      </div>`;
+  }).join('');
+  document.getElementById('cartTotalAmount').textContent = '₹' + cartTotal();
+  document.getElementById('cartTableNote').textContent = tableNo ? ('Table ' + tableNo) : '';
+  footer.style.display = 'block';
+}
+
+function openCartSheet(){
+  renderCartSheet();
+  document.getElementById('cartOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeCartSheet(){
+  document.getElementById('cartOverlay').classList.remove('open');
+  if(!document.getElementById('modal').classList.contains('open')){
+    document.body.style.overflow = '';
+  }
+}
+
+function sendOrderWhatsApp(){
+  const ids = Object.keys(cart).filter(id => cart[id] > 0);
+  if(!ids.length) return;
+  const lines = ids.map(id=>{
+    const d = MENU.find(m=>m.id===id);
+    const qty = cart[id];
+    return `${qty}x ${d.name} — ₹${d.price*qty}`;
+  });
+  const header = tableNo ? `\u{1F37D}️ New Order — Table ${tableNo}` : `\u{1F37D}️ New Order`;
+  const msg = [header, '', ...lines, '', `Total: ₹${cartTotal()}`].join('\n');
+  window.open('https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// Restore cart bar state on load (cart may already hold items from before
+// an AR-exit reload)
+renderCartBar();
 
 // ===== WAITER CALL =====
 // Table number arrives via QR (?table=5) and survives AR-exit reloads via
