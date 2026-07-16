@@ -113,6 +113,20 @@ header{
 }
 @keyframes glow{from{box-shadow:0 0 4px rgba(76,201,100,.2)}to{box-shadow:0 0 12px rgba(76,201,100,.4)}}
 
+/* ===== LANGUAGE SWITCHER ===== */
+.header-right{display:flex;align-items:center;gap:10px}
+.lang-switch{
+  display:flex;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;padding:2px;gap:2px;
+}
+.lang-opt{
+  border:none;background:none;cursor:pointer;
+  color:rgba(255,255,255,.5);font-size:.68rem;font-weight:600;
+  padding:4px 9px;border-radius:16px;font-family:'DM Sans',sans-serif;
+  transition:all .2s;white-space:nowrap;
+}
+.lang-opt.active{background:linear-gradient(135deg,#c9a84c,#a07830);color:#1a1208}
+
 /* ===== HERO / RESTAURANT BANNER ===== */
 .hero{
   padding:32px 20px 20px;
@@ -906,7 +920,14 @@ body.cart-bar-visible .waiter-float{bottom:162px}
     <div class="logo-icon"><img src="logo-square.png" alt="Smart Menu AR Logo"></div>
     <div class="logo-text">Smart <span>Menu AR</span></div>
   </div>
-  <div class="header-badge">&#9679; Live</div>
+  <div class="header-right">
+    <div class="lang-switch" id="langSwitch">
+      <button class="lang-opt active" data-lang="en" onclick="setLang('en')">EN</button>
+      <button class="lang-opt" data-lang="bn" onclick="setLang('bn')">&#2476;&#2494;&#2434;</button>
+      <button class="lang-opt" data-lang="hi" onclick="setLang('hi')">&#2361;&#2367;&#2306;</button>
+    </div>
+    <div class="header-badge">&#9679; Live</div>
+  </div>
 </header>
 
 <!-- ===== HERO ===== -->
@@ -1003,11 +1024,11 @@ body.cart-bar-visible .waiter-float{bottom:162px}
 
 <!-- ===== CATEGORY TABS ===== -->
 <div class="categories">
-  <div class="cat-tab active" data-cat="all">&#127860; All</div>
-  <div class="cat-tab" data-cat="beverages">&#129380; Beverages</div>
-  <div class="cat-tab" data-cat="starters">&#127835; Starters</div>
-  <div class="cat-tab" data-cat="main">&#127858; Main Course</div>
-  <div class="cat-tab" data-cat="desserts">&#127848; Desserts</div>
+  <div class="cat-tab active" data-cat="all">&#127860; <span class="cat-label">All</span></div>
+  <div class="cat-tab" data-cat="beverages">&#129380; <span class="cat-label">Beverages</span></div>
+  <div class="cat-tab" data-cat="starters">&#127835; <span class="cat-label">Starters</span></div>
+  <div class="cat-tab" data-cat="main">&#127858; <span class="cat-label">Main Course</span></div>
+  <div class="cat-tab" data-cat="desserts">&#127848; <span class="cat-label">Desserts</span></div>
 </div>
 
 <!-- ===== MENU ===== -->
@@ -1155,6 +1176,10 @@ body.cart-bar-visible .waiter-float{bottom:162px}
 const MENU = [
   {
     id:'cola',
+    i18n:{
+      bn:{name:'ঠান্ডা কোলা',desc:'বরফ-ঠান্ডা কোলা, ক্লাসিক কাচের বোতলে পরিবেশিত। নিখুঁত সতেজতা।'},
+      hi:{name:'कोल्ड कोला',desc:'बर्फ जैसी ठंडी कोला, क्लासिक कांच की बोतल में परोसी गई। एकदम सही ताज़गी।'}
+    },
     name:'Cold Cola',
     nameHTML:'Cold <span>Cola</span>',
     desc:'Chilled to perfection. Ice-cold cola served in a classic glass bottle. The perfect refreshment.',
@@ -1180,6 +1205,10 @@ const MENU = [
   },
   {
     id:'pav-bhaji',
+    i18n:{
+      bn:{name:'বাটার পাও ভাজি',desc:'মুম্বাই-স্টাইল ঝাল মশলাদার সবজি ভাজি, উপরে মাখনের পুরু স্তর, নরম টোস্ট করা পাও-এর সাথে পরিবেশিত।'},
+      hi:{name:'बटर पाव भाजी',desc:'मुंबई-स्टाइल मसालेदार सब्ज़ी भाजी, ऊपर मक्खन की मोटी परत, नरम टोस्टेड पाव के साथ।'}
+    },
     name:'Butter Pav Bhaji',
     nameHTML:'Butter <span>Pav Bhaji</span>',
     desc:'Mumbai-style spicy mashed vegetable curry topped with a generous slab of butter, served with soft toasted pav buns.',
@@ -1218,6 +1247,10 @@ const MENU = [
   },
   {
     id:'oreo-milkshake',
+    i18n:{
+      bn:{name:'ওরিও মিল্কশেক',desc:'ক্রিমি ঘন মিল্কশেক, গুঁড়ো ওরিও বিস্কুট, ভ্যানিলা আইসক্রিম আর ঠান্ডা দুধ দিয়ে তৈরি। উপরে হুইপড ক্রিম।'},
+      hi:{name:'ओरियो मिल्कशेक',desc:'क्रीमी गाढ़ा मिल्कशेक, कुटे ओरियो बिस्किट, वनीला आइसक्रीम और ठंडे दूध से बना। ऊपर व्हिप्ड क्रीम।'}
+    },
     name:'Oreo Milk Shake',
     nameHTML:'Oreo <span>Milk Shake</span>',
     desc:'Creamy, thick milkshake blended with crushed Oreo cookies, vanilla ice cream, and chilled milk. Topped with whipped cream.',
@@ -1242,6 +1275,10 @@ const MENU = [
   },
   {
     id:'pizza-cheese-dosa',
+    i18n:{
+      bn:{name:'পিৎজা চিজ রোস্ট দোসা',desc:'মুচমুচে রোস্ট দোসা, পিৎজা সস, মোজারেলা চিজ, ক্যাপসিকাম আর পেঁয়াজ দিয়ে ভরা। দক্ষিণ ভারতীয় ও ইতালীয় স্বাদের নিখুঁত মিশেল।'},
+      hi:{name:'पिज़्ज़ा चीज़ रोस्ट डोसा',desc:'कुरकुरा रोस्ट डोसा, पिज़्ज़ा सॉस, मोज़ेरेला चीज़, शिमला मिर्च और प्याज़ से भरा। साउथ इंडियन और इटैलियन स्वाद का बेहतरीन फ्यूज़न।'}
+    },
     name:'Pizza Cheese Roast Dosa',
     nameHTML:'Pizza Cheese <span>Roast Dosa</span>',
     desc:'Crispy roast dosa loaded with pizza sauce, mozzarella cheese, capsicum, and onions. A perfect fusion of South Indian and Italian flavours.',
@@ -1266,6 +1303,10 @@ const MENU = [
   },
   {
     id:'plain-dosa',
+    i18n:{
+      bn:{name:'প্লেইন দোসা',desc:'ক্লাসিক মুচমুচে দক্ষিণ ভারতীয় দোসা, সম্বর আর চাটনির সাথে গরম পরিবেশিত।'},
+      hi:{name:'प्लेन डोसा',desc:'क्लासिक कुरकुरा साउथ इंडियन डोसा, सांबर और चटनी के साथ गरम परोसा।'}
+    },
     name:'Plain Dosa',
     nameHTML:'Plain <span>Dosa</span>',
     desc:'Classic crispy South Indian dosa served hot with sambar and chutney.',
@@ -1289,6 +1330,10 @@ const MENU = [
   },
   {
     id:'coffee',
+    i18n:{
+      bn:{name:'ফিল্টার কফি',desc:'কড়া দক্ষিণ ভারতীয় ফিল্টার কফি, ফেনা-ভরা দুধ দিয়ে গরম পরিবেশিত।'},
+      hi:{name:'फ़िल्टर कॉफ़ी',desc:'कड़क साउथ इंडियन फ़िल्टर कॉफ़ी, झागदार दूध के साथ गरम परोसी।'}
+    },
     name:'Coffee',
     nameHTML:'Filter <span>Coffee</span>',
     desc:'Strong South Indian filter coffee served hot with frothy milk.',
@@ -1312,6 +1357,10 @@ const MENU = [
   },
   {
     id:'masala-chai',
+    i18n:{
+      bn:{name:'মশলা চা',desc:'খাঁটি ভারতীয় মশলা চা, তাজা আদা, এলাচ আর প্রিমিয়াম আসাম পাতা দিয়ে তৈরি।'},
+      hi:{name:'मसाला चाय',desc:'असली भारतीय मसाला चाय, ताज़ा अदरक, इलायची और प्रीमियम असम पत्ती से बनी।'}
+    },
     name:'Masala Chai',
     nameHTML:'Masala <span>Chai</span>',
     desc:'Authentic Indian spiced tea brewed with fresh ginger, cardamom, and premium Assam leaves.',
@@ -1335,6 +1384,10 @@ const MENU = [
   },
   {
     id:'paneer-tikka',
+    i18n:{
+      bn:{name:'পনির টিক্কা',desc:'ধোঁয়াটে, তন্দুরি মশলায় ম্যারিনেট করা গ্রিল করা পনির কিউব। পুদিনা চাটনির সাথে পরিবেশিত।'},
+      hi:{name:'पनीर टिक्का',desc:'स्मोकी, तंदूरी मसालों में मैरिनेट किए ग्रिल्ड पनीर क्यूब्स। पुदीना चटनी के साथ।'}
+    },
     name:'Paneer Tikka',
     nameHTML:'Paneer <span>Tikka</span>',
     desc:'Smoky, chargrilled paneer cubes marinated in tandoori spices. Served with mint chutney.',
@@ -1358,6 +1411,10 @@ const MENU = [
   },
   {
     id:'chicken-biryani',
+    i18n:{
+      bn:{name:'চিকেন বিরিয়ানি',desc:'সুগন্ধি বাসমতি চাল, নরম চিকেন, জাফরান আর সুগন্ধি মশলার স্তরে সাজানো। নিখুঁত দমে রান্না।'},
+      hi:{name:'चिकन बिरयानी',desc:'खुशबूदार बासमती चावल, नरम चिकन, केसर और सुगंधित मसालों की परतें। बेहतरीन दम पर पका।'}
+    },
     name:'Chicken Biryani',
     nameHTML:'Chicken <span>Biryani</span>',
     desc:'Fragrant basmati rice layered with tender chicken, saffron, and aromatic spices. Dum-cooked to perfection.',
@@ -1381,6 +1438,10 @@ const MENU = [
   },
   {
     id:'butter-naan',
+    i18n:{
+      bn:{name:'বাটার নান',desc:'নরম, ফুরফুরে নান, গলানো মাখন মাখানো। আমাদের তন্দুরে টাটকা বেক করা।'},
+      hi:{name:'बटर नान',desc:'नरम, फूला हुआ नान, पिघले मक्खन से ब्रश किया। हमारे तंदूर में ताज़ा बेक किया।'}
+    },
     name:'Butter Naan',
     nameHTML:'Butter <span>Naan</span>',
     desc:'Soft, fluffy naan brushed with melted butter. Freshly baked in our tandoor oven.',
@@ -1404,6 +1465,10 @@ const MENU = [
   },
   {
     id:'gulab-jamun',
+    i18n:{
+      bn:{name:'গোলাপ জামুন',desc:'নরম, সোনালি গোলাপ জামুন, উষ্ণ গোলাপ-এলাচ চিনির রসে ডোবানো। গরম পরিবেশিত।'},
+      hi:{name:'गुलाब जामुन',desc:'नरम, सुनहरे गुलाब जामुन, गुनगुनी गुलाब-इलायची चाशनी में डूबे। गरम परोसे।'}
+    },
     name:'Gulab Jamun',
     nameHTML:'Gulab <span>Jamun</span>',
     desc:'Soft, golden dumplings soaked in warm rose-cardamom sugar syrup. Served warm.',
@@ -1449,6 +1514,105 @@ const CONFIG = {
   enableWhatsAppOrdering: false,
 };
 const RESTAURANT_NAME = CONFIG.name;
+
+// ===== LANGUAGE (i18n) =====
+// EN base (dish.name/desc). BN + HI overrides live in dish.i18n.
+// Declared here — above renderMenu()'s first synchronous call — so the
+// card template can read LANG without a temporal-dead-zone error.
+let LANG = 'en';
+try{
+  const saved = localStorage.getItem('lang');
+  if(saved === 'bn' || saved === 'hi' || saved === 'en') LANG = saved;
+}catch(_){}
+
+// Static UI strings. Missing key or language falls back to English.
+const UI = {
+  en:{search:'Search dishes, ingredients...',ourMenu:'Our Menu',items:'Items',
+      todaysSpecial:"Today's Special",chefSpecial:"Chef's Special",addToCart:'🛍️ Add to Cart',
+      itemsAdded:'items added',viewCart:'View Cart ›',yourOrder:'Your Order',
+      total:'Total',callWaiterOrder:"🔔 Call Waiter with My Order",
+      sendOrder:'💬 Send Order on WhatsApp',callWaiter:'Call waiter',
+      details:'📄 Details',view3d:'🎮 View 3D',view3dLong:'🎮 View in 3D',
+      goesWellWith:'🤝 Goes Well With',cartEmpty:'Your cart is empty',
+      tapToAdd:'Tap + on any dish to add it',
+      cats:{all:'All',beverages:'Beverages',starters:'Starters',main:'Main Course',desserts:'Desserts'}},
+  bn:{search:'খাবার, উপকরণ খুঁজুন...',ourMenu:'আমাদের মেনু',items:'টি আইটেম',
+      todaysSpecial:'আজকের স্পেশাল',chefSpecial:'শেফের স্পেশাল',addToCart:'🛍️ কার্টে যোগ করুন',
+      itemsAdded:'টি আইটেম যোগ হয়েছে',viewCart:'কার্ট দেখুন ›',yourOrder:'আপনার অর্ডার',
+      total:'মোট',callWaiterOrder:'🔔 অর্ডার সহ ওয়েটার ডাকুন',
+      sendOrder:'💬 হোয়াটসঅ্যাপে অর্ডার পাঠান',callWaiter:'ওয়েটার ডাকুন',
+      details:'📄 বিবরণ',view3d:'🎮 থ্রিডি দেখুন',view3dLong:'🎮 থ্রিডি-তে দেখুন',
+      goesWellWith:'🤝 সঙ্গে ভালো যায়',cartEmpty:'আপনার কার্ট খালি',
+      tapToAdd:'যোগ করতে যেকোনো খাবারে + চাপুন',
+      cats:{all:'সব',beverages:'পানীয়',starters:'স্টার্টার',main:'মেইন কোর্স',desserts:'ডেজার্ট'}},
+  hi:{search:'व्यंजन, सामग्री खोजें...',ourMenu:'हमारा मेन्यू',items:'आइटम',
+      todaysSpecial:'आज का स्पेशल',chefSpecial:'शेफ स्पेशल',addToCart:'🛍️ कार्ट में जोड़ें',
+      itemsAdded:'आइटम जोड़े गए',viewCart:'कार्ट देखें ›',yourOrder:'आपका ऑर्डर',
+      total:'कुल',callWaiterOrder:'🔔 ऑर्डर के साथ वेटर बुलाएं',
+      sendOrder:'💬 व्हाट्सएप पर ऑर्डर भेजें',callWaiter:'वेटर बुलाएं',
+      details:'📄 विवरण',view3d:'🎮 3D देखें',view3dLong:'🎮 3D में देखें',
+      goesWellWith:'🤝 साथ में अच्छा लगता है',cartEmpty:'आपका कार्ट खाली है',
+      tapToAdd:'जोड़ने के लिए किसी भी व्यंजन पर + दबाएं',
+      cats:{all:'सभी',beverages:'पेय',starters:'स्टार्टर',main:'मेन कोर्स',desserts:'डेज़र्ट'}}
+};
+function t(key){ return (UI[LANG] && UI[LANG][key]) || UI.en[key] || key; }
+function dishName(d){
+  const tr = d.i18n && d.i18n[LANG];
+  return (LANG !== 'en' && tr && tr.name) || d.name;
+}
+function dishDesc(d){
+  const tr = d.i18n && d.i18n[LANG];
+  return (LANG !== 'en' && tr && tr.desc) || d.desc;
+}
+
+function setLang(lang){
+  if(lang !== 'en' && lang !== 'bn' && lang !== 'hi') return;
+  LANG = lang;
+  try{ localStorage.setItem('lang', lang); }catch(_){}
+  applyLanguage();
+}
+
+// Re-skin all visible text for the current LANG. Safe to call anytime after
+// the static DOM exists; re-renders dynamic sections (menu, cart, modal).
+function applyLanguage(){
+  try{ document.documentElement.lang = LANG; }catch(_){}
+
+  // Active state on the switcher
+  document.querySelectorAll('.lang-opt').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === LANG));
+
+  // Static chrome
+  const si = document.getElementById('searchInput');
+  if(si) si.placeholder = t('search');
+  const st = document.querySelector('.section-title');
+  if(st) st.textContent = t('ourMenu');
+  const cbText = document.querySelector('.cart-bar-text');
+  if(cbText) cbText.textContent = t('itemsAdded');
+  const cbView = document.querySelector('.cart-bar-view');
+  if(cbView) cbView.textContent = t('viewCart');
+  const waiterTip = document.querySelector('.waiter-float .wa-tooltip');
+  if(waiterTip) waiterTip.textContent = t('callWaiter');
+  const cartTitle = document.querySelector('.cart-sheet .filter-title');
+  if(cartTitle) cartTitle.innerHTML = '&#128722; ' + t('yourOrder');
+  const totalLabel = document.querySelector('.cart-total-row span:first-child');
+  if(totalLabel) totalLabel.textContent = t('total');
+
+  // Category tab labels (keep the emoji, swap the word)
+  document.querySelectorAll('.cat-tab').forEach(tab=>{
+    const lbl = tab.querySelector('.cat-label');
+    const cat = tab.dataset.cat;
+    if(lbl && t('cats')[cat]) lbl.textContent = t('cats')[cat];
+  });
+
+  // Dynamic sections
+  renderMenu(currentCat);
+  renderSpecialBanner();
+  renderCartBar();
+  if(document.getElementById('cartOverlay').classList.contains('open')) renderCartSheet();
+  if(currentDish && document.getElementById('modal').classList.contains('open')){
+    openDish(currentDish.id);
+  }
+}
 
 // ===== SPLASH & URL PARAMS =====
 // Detect a reload triggered by AR exit — skip the splash entirely so the
@@ -1507,6 +1671,8 @@ function renderMenu(cat){
     items = items.filter(d =>
       d.name.toLowerCase().includes(q) ||
       d.desc.toLowerCase().includes(q) ||
+      dishName(d).toLowerCase().includes(q) ||
+      dishDesc(d).toLowerCase().includes(q) ||
       (d.ingredients && d.ingredients.some(i => i.toLowerCase().includes(q))) ||
       (d.keywords && d.keywords.some(k => k.toLowerCase().includes(q))) ||
       (d.allergens && d.allergens.some(a => a.toLowerCase().includes(q))) ||
@@ -1540,7 +1706,7 @@ function renderMenu(cat){
     return bPop - aPop;
   });
 
-  document.getElementById('dishCount').textContent = items.length + ' Items';
+  document.getElementById('dishCount').textContent = items.length + ' ' + t('items');
 
   if(items.length === 0){
     grid.innerHTML = `
@@ -1559,12 +1725,12 @@ function renderMenu(cat){
           ? `<img src="${dish.thumbnail}" alt="${dish.name}" loading="lazy">`
           : `<div style="font-size:3.5rem">${dish.emoji}</div>`}
         ${dish.hasAR ? '<div class="ar-tag">&#10024; 3D AR</div>' : ''}
-        ${dish.special ? `<div class="chef-badge">&#128104;&#8205;&#127859; Chef's Special</div>` : ''}
+        ${dish.special ? `<div class="chef-badge">&#128104;&#8205;&#127859; ${t('chefSpecial')}</div>` : ''}
         <div class="veg-badge ${dish.veg?'veg':'non-veg'}"></div>
       </div>
       <div class="card-body">
-        <div class="card-name">${dish.name}</div>
-        <div class="card-desc">${dish.desc}</div>
+        <div class="card-name">${dishName(dish)}</div>
+        <div class="card-desc">${dishDesc(dish)}</div>
         <div class="card-bottom">
           <div class="card-price">&#8377;${dish.price}</div>
           <div class="card-bottom-right" id="cardCartSlot-${dish.id}">${cartSlotHTML(dish)}</div>
@@ -1748,9 +1914,10 @@ function openDish(id){
   // Reset to info tab
   switchTab('info',true);
 
-  document.getElementById('modalTitle').textContent = dish.name;
-  document.getElementById('modalDishName').innerHTML = dish.nameHTML;
-  document.getElementById('modalDishDesc').textContent = dish.desc;
+  document.getElementById('modalTitle').textContent = dishName(dish);
+  // EN keeps the gold-accent nameHTML; translations render as plain text.
+  document.getElementById('modalDishName').innerHTML = LANG === 'en' ? dish.nameHTML : dishName(dish);
+  document.getElementById('modalDishDesc').textContent = dishDesc(dish);
   document.getElementById('modalDishPrice').innerHTML = (dish.oldPrice
     ? `<span style="font-size:.9rem;color:rgba(255,255,255,.3);text-decoration:line-through;margin-right:8px">&#8377;${dish.oldPrice}</span>`
     : '') + `&#8377;${dish.price}`;
@@ -1765,7 +1932,7 @@ function openDish(id){
   }
 
   document.getElementById('modalTags').innerHTML =
-    (dish.special ? `<div class="modal-tag special-tag">&#128104;&#8205;&#127859; Chef's Special</div>` : '') +
+    (dish.special ? `<div class="modal-tag special-tag">&#128104;&#8205;&#127859; ${t('chefSpecial')}</div>` : '') +
     dish.tags.map(t=>`<div class="modal-tag">${t}</div>`).join('');
   document.getElementById('modalSpecs').innerHTML = dish.specs.map(s=>`
     <div class="modal-spec">
@@ -1782,12 +1949,12 @@ function openDish(id){
     if(pairs.length){
       pairsEl.className = 'pairs-wrap';
       pairsEl.innerHTML = `
-        <div class="pairs-label">&#129309; Goes Well With</div>
+        <div class="pairs-label">${t('goesWellWith')}</div>
         <div class="pairs-list">
           ${pairs.map(p => `
             <div class="pair-chip" onclick="openDish('${p.id}')">
               ${p.thumbnail ? `<img src="${p.thumbnail}" alt="${p.name}">` : `<span class="pair-emoji">${p.emoji}</span>`}
-              <span class="pair-name">${p.name}</span>
+              <span class="pair-name">${dishName(p)}</span>
               <span class="pair-price">&#8377;${p.price}</span>
             </div>`).join('')}
         </div>`;
@@ -1898,14 +2065,18 @@ function switchTab(tab, skipModel){
     tab3d.classList.remove('active');
     tabs[0].classList.add('active');
     tabs[1].classList.remove('active');
-    btn3D.innerHTML = '&#127922; View in 3D';
+    if(tabs[0]) tabs[0].innerHTML = t('details');
+    if(tabs[1]) tabs[1].innerHTML = t('view3d');
+    btn3D.innerHTML = t('view3dLong');
     btn3D.setAttribute('onclick','switchTab("3d")');
   } else if(tab==='3d' && currentDish && currentDish.hasAR){
     tabInfo.style.display = 'none';
     tab3d.classList.add('active');
     tabs[1].classList.add('active');
     tabs[0].classList.remove('active');
-    btn3D.innerHTML = '&#128196; Details';
+    if(tabs[0]) tabs[0].innerHTML = t('details');
+    if(tabs[1]) tabs[1].innerHTML = t('view3d');
+    btn3D.innerHTML = t('details');
     btn3D.setAttribute('onclick','switchTab("info")');
 
     // Load model only now (lazy load)
@@ -2523,7 +2694,7 @@ function renderModalCartCta(id){
          <span>${qty}</span>
          <button onclick="changeQty('${id}',1)">&#43;</button>
        </div>`
-    : `<button class="btn-add-to-cart" onclick="addToCart('${id}')">&#128722; Add to Cart</button>`;
+    : `<button class="btn-add-to-cart" onclick="addToCart('${id}')">${t('addToCart')}</button>`;
 }
 
 function renderCartBar(){
@@ -2545,7 +2716,7 @@ function renderCartSheet(){
   const footer = document.getElementById('cartSheetFooter');
   const ids = Object.keys(cart).filter(id => cart[id] > 0);
   if(!ids.length){
-    list.innerHTML = `<div class="cart-empty">&#128722; Your cart is empty<br>Tap &#43; on any dish to add it</div>`;
+    list.innerHTML = `<div class="cart-empty">&#128722; ${t('cartEmpty')}<br>${t('tapToAdd')}</div>`;
     footer.style.display = 'none';
     return;
   }
@@ -2560,7 +2731,7 @@ function renderCartSheet(){
       <div class="cart-item-row">
         ${img}
         <div class="cart-item-info">
-          <div class="cart-item-name">${d.name}</div>
+          <div class="cart-item-name">${dishName(d)}</div>
           <div class="cart-item-price">&#8377;${d.price} &times; ${qty} = &#8377;${d.price*qty}</div>
         </div>
         <div class="modal-qty-stepper">
@@ -2580,10 +2751,10 @@ function renderCartSheet(){
   // raw itemized WhatsApp order-send instead.
   const btn = document.getElementById('btnCartCheckout');
   if(CONFIG.enableWhatsAppOrdering){
-    btn.innerHTML = '&#128172; Send Order on WhatsApp';
+    btn.innerHTML = t('sendOrder');
     btn.onclick = sendOrderWhatsApp;
   } else {
-    btn.innerHTML = '&#128276; Call Waiter with My Order';
+    btn.innerHTML = t('callWaiterOrder');
     btn.onclick = callWaiterWithOrder;
   }
 }
@@ -2658,21 +2829,24 @@ function callWaiterWithOrder(){
 // ===== TODAY'S SPECIAL BANNER (data-driven) =====
 // Populated from the dish marked special:true in MENU — price changes in one
 // place only. Banner hides itself if no dish is marked special.
-(function initSpecialBanner(){
+function renderSpecialBanner(){
   const banner = document.querySelector('.special-banner');
   if(!banner) return;
   const sp = MENU.find(d => d.special);
   if(!sp){ banner.style.display = 'none'; return; }
   const off = sp.oldPrice ? Math.round((1 - sp.price / sp.oldPrice) * 100) : 0;
   banner.setAttribute('onclick', `openDish('${sp.id}')`);
+  const labelEl = banner.querySelector('.special-label');
   const dishEl  = banner.querySelector('.special-dish');
   const priceEl = banner.querySelector('.special-price');
-  if(dishEl) dishEl.textContent = sp.name;
+  if(labelEl) labelEl.textContent = t('todaysSpecial');
+  if(dishEl) dishEl.textContent = dishName(sp);
   if(priceEl) priceEl.innerHTML =
     (sp.oldPrice ? `<span class="special-old">&#8377;${sp.oldPrice}</span>` : '') +
     `<span class="special-new">&#8377;${sp.price}</span>` +
     (off ? `<span class="special-off">${off}% OFF</span>` : '');
-})();
+}
+renderSpecialBanner();
 
 // ===== HERO PARTICLES =====
 // Lightweight CSS-animated golden particles — ~18 particles, no canvas, no GPU load
@@ -2697,6 +2871,10 @@ function callWaiterWithOrder(){
     container.appendChild(p);
   }
 })();
+
+// Apply saved language once everything above is defined & the static DOM
+// exists — paints all chrome + re-renders menu/cart/banner in LANG.
+applyLanguage();
 </script>
 
 </body>
