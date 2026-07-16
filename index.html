@@ -1145,7 +1145,7 @@ body.cart-bar-visible .waiter-float{bottom:162px}
     <div class="cart-sheet-footer" id="cartSheetFooter" style="display:none">
       <div class="cart-total-row"><span>Total</span><span id="cartTotalAmount">&#8377;0</span></div>
       <div class="cart-table-note" id="cartTableNote"></div>
-      <button class="btn-send-order" onclick="sendOrderWhatsApp()">&#128172; Send Order on WhatsApp</button>
+      <button class="btn-send-order" id="btnCartCheckout"></button>
     </div>
   </div>
 </div>
@@ -1438,6 +1438,15 @@ const CONFIG = {
   logo: 'logo-square.png',
   themeColor: '#c9a84c',          // Gold — already matches existing design
   themeDark: '#0a0a0f',
+  // false (default): cart checkout summons the waiter with the item list
+  // as a read-along reference — staff still take/confirm the order in
+  // person, exactly like today. No order-processing inbox for the owner
+  // to manage. Set true only for a client who explicitly wants raw
+  // WhatsApp orders to land directly (small dhaba-style single-owner
+  // operations) — at multiple simultaneous tables this floods one
+  // WhatsApp inbox with interleaved order threads and nothing to
+  // triage them, so it does NOT scale past one owner watching one phone.
+  enableWhatsAppOrdering: false,
 };
 const RESTAURANT_NAME = CONFIG.name;
 
@@ -2564,6 +2573,19 @@ function renderCartSheet(){
   document.getElementById('cartTotalAmount').textContent = '₹' + cartTotal();
   document.getElementById('cartTableNote').textContent = tableNo ? ('Table ' + tableNo) : '';
   footer.style.display = 'block';
+
+  // Default: checkout summons the waiter (item list included as reference) —
+  // staff take/confirm the order in person, same as the restaurant does
+  // today. Only clients with CONFIG.enableWhatsAppOrdering=true get the
+  // raw itemized WhatsApp order-send instead.
+  const btn = document.getElementById('btnCartCheckout');
+  if(CONFIG.enableWhatsAppOrdering){
+    btn.innerHTML = '&#128172; Send Order on WhatsApp';
+    btn.onclick = sendOrderWhatsApp;
+  } else {
+    btn.innerHTML = '&#128276; Call Waiter with My Order';
+    btn.onclick = callWaiterWithOrder;
+  }
 }
 
 function openCartSheet(){
@@ -2611,6 +2633,25 @@ function callWaiter(){
   const msg = tableNo
     ? `\u{1F514} Table ${tableNo}: Please send a waiter.`
     : '\u{1F514} Please send a waiter to my table.';
+  window.open('https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// Cart checkout, non-WhatsApp-ordering clients (the default): this is still
+// just a summon, not an order-processing message — the item list is a
+// read-along aid so the waiter can confirm quickly, staff still take/write
+// the order in person exactly like the restaurant does without this app.
+function callWaiterWithOrder(){
+  const ids = Object.keys(cart).filter(id => cart[id] > 0);
+  if(!ids.length) return callWaiter();
+  const lines = ids.map(id=>{
+    const d = MENU.find(m=>m.id===id);
+    const qty = cart[id];
+    return `${qty}x ${d.name}`;
+  });
+  const header = tableNo
+    ? `\u{1F514} Table ${tableNo}: Waiter please come, I'd like to order:`
+    : `\u{1F514} Please send a waiter, I'd like to order:`;
+  const msg = [header, '', ...lines].join('\n');
   window.open('https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
