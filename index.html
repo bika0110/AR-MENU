@@ -174,6 +174,60 @@ header{
 }
 .whatsapp-float:hover .wa-tooltip{opacity:1}
 
+/* ===== WAITER CALL FLOATING BUTTON ===== */
+.waiter-float{
+  position:fixed;bottom:88px;right:20px;z-index:90;
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#c9a84c,#a07830);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+  box-shadow:0 4px 20px rgba(201,168,76,.45);
+  transition:transform .2s;
+}
+.waiter-float:active{transform:scale(.9)}
+.waiter-float .wa-tooltip{
+  position:absolute;right:64px;top:50%;transform:translateY(-50%);
+  background:rgba(0,0,0,.85);color:#fff;padding:6px 12px;border-radius:8px;
+  font-size:.72rem;white-space:nowrap;pointer-events:none;
+  opacity:0;transition:opacity .3s;
+}
+.waiter-float:hover .wa-tooltip{opacity:1}
+
+/* ===== CHEF'S SPECIAL BADGE ===== */
+.chef-badge{
+  position:absolute;bottom:8px;left:8px;
+  background:linear-gradient(135deg,#c9a84c,#e8d48b);
+  color:#1a1208;font-size:.55rem;font-weight:700;
+  padding:3px 8px;border-radius:8px;
+  display:flex;align-items:center;gap:3px;
+  letter-spacing:.5px;text-transform:uppercase;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+.modal-tag.special-tag{
+  background:linear-gradient(135deg,#c9a84c,#e8d48b);
+  border-color:transparent;color:#1a1208;font-weight:700;
+}
+
+/* ===== DISH PAIRING CHIPS ===== */
+.pairs-wrap{width:100%;max-width:500px;padding:0 20px;margin:0 auto 14px}
+.pairs-label{
+  font-size:.65rem;color:#c9a84c;text-transform:uppercase;letter-spacing:2px;
+  font-weight:700;margin-bottom:8px;
+}
+.pairs-list{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:4px}
+.pairs-list::-webkit-scrollbar{display:none}
+.pair-chip{
+  flex-shrink:0;display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.25);
+  border-radius:12px;padding:6px 12px 6px 6px;cursor:pointer;
+  transition:all .2s;
+}
+.pair-chip:active{transform:scale(.96)}
+.pair-chip:hover{border-color:rgba(201,168,76,.5)}
+.pair-chip img{width:34px;height:34px;border-radius:8px;object-fit:cover;display:block}
+.pair-emoji{font-size:1.3rem;width:34px;text-align:center}
+.pair-name{font-size:.72rem;font-weight:600;white-space:nowrap}
+.pair-price{font-size:.72rem;color:#c9a84c;font-weight:700;font-family:'Playfair Display',serif}
+
 /* ===== TODAY'S SPECIAL BANNER ===== */
 .special-banner{
   margin:16px 16px 0;
@@ -877,6 +931,7 @@ footer{
         <div class="modal-tags" id="modalTags"></div>
       </div>
       <div class="modal-specs" id="modalSpecs"></div>
+      <div id="modalPairs"></div>
       <div id="nutritionInfoStrip"></div>
     </div>
 
@@ -915,6 +970,12 @@ footer{
   <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
   <span class="wa-tooltip">Chat with us!</span>
 </a>
+
+<!-- ===== WAITER CALL FLOATING BUTTON ===== -->
+<button class="waiter-float" onclick="callWaiter()" aria-label="Call waiter">
+  &#128276;
+  <span class="wa-tooltip">Call waiter</span>
+</button>
 
 <!-- ===== AR INSTRUCTION MODAL ===== -->
 <div class="ar-instruction" id="arInstruction">
@@ -970,7 +1031,8 @@ const MENU = [
     nutrition:{calories:'140 kcal',protein:'0g',carbs:'39g',fiber:'0g',fat:'0g',sodium:'45mg'},
     ingredients:['Carbonated Water','Sugar','Caramel Color','Phosphoric Acid','Natural Flavors','Caffeine'],
     allergens:[],
-    keywords:['cold','chilled','ice','fizzy','soda','coke','soft drink','refreshing','summer','bottle','thanda','carbonated','drink','pepsi']
+    keywords:['cold','chilled','ice','fizzy','soda','coke','soft drink','refreshing','summer','bottle','thanda','carbonated','drink','pepsi'],
+    pairs:['pav-bhaji','pizza-cheese-dosa']
   },
   {
     id:'pav-bhaji',
@@ -981,6 +1043,7 @@ const MENU = [
     oldPrice:200,
     category:'main',
     veg:true,
+    special:true,
     tags:['&#129408; Butter Loaded','&#127798; Spicy','&#11088; Bestseller'],
     specs:[
       {icon:'&#129408;',label:'Style',value:'Mumbai'},
@@ -1002,6 +1065,7 @@ const MENU = [
     ingredients:['Potato','Peas','Onion','Tomato','Capsicum','Butter','Pav Buns','Pav Bhaji Masala','Ginger-Garlic','Coriander'],
     allergens:['Dairy','Gluten'],
     keywords:['hot','spicy','mumbai','street food','butter','vegetables','potato','indian','mashed','curry','sabzi','masala','snack','famous','popular'],
+    pairs:['cola','oreo-milkshake'],
     hotspots:[
       {side:'left',emoji:'&#129480;',label:'Pav',info:'2 toasted buns'},
       {side:'right',emoji:'&#127798;',label:'Bhaji',info:'Spicy veggie mash'},
@@ -1029,7 +1093,8 @@ const MENU = [
     nutrition:{calories:'420 kcal',protein:'8g',carbs:'58g',fiber:'1g',fat:'18g',sodium:'280mg'},
     ingredients:['Milk','Vanilla Ice Cream','Oreo Cookies','Whipped Cream','Sugar','Chocolate Syrup'],
     allergens:['Dairy','Gluten'],
-    keywords:['cold','chilled','ice cream','chocolate','cookies','shake','thick shake','creamy','sweet','frozen','summer','dessert drink','milkshake','smoothie']
+    keywords:['cold','chilled','ice cream','chocolate','cookies','shake','thick shake','creamy','sweet','frozen','summer','dessert drink','milkshake','smoothie'],
+    pairs:['pizza-cheese-dosa','pav-bhaji']
   },
   {
     id:'pizza-cheese-dosa',
@@ -1052,7 +1117,8 @@ const MENU = [
     nutrition:{calories:'380 kcal',protein:'14g',carbs:'42g',fiber:'3g',fat:'18g',sodium:'520mg'},
     ingredients:['Rice Batter','Urad Dal','Pizza Sauce','Mozzarella','Capsicum','Onion','Oregano','Olive Oil'],
     allergens:['Dairy','Gluten'],
-    keywords:['cheesy','pizza','italian','fusion','crispy','roasted','south indian','cheese','mozzarella','hot','crunchy','creative','unique','trending']
+    keywords:['cheesy','pizza','italian','fusion','crispy','roasted','south indian','cheese','mozzarella','hot','crunchy','creative','unique','trending'],
+    pairs:['cola','oreo-milkshake']
   },
   {
     id:'plain-dosa',
@@ -1074,7 +1140,8 @@ const MENU = [
     nutrition:{calories:'170 kcal',protein:'4g',carbs:'28g',fiber:'2g',fat:'5g',sodium:'220mg'},
     ingredients:['Rice Batter','Urad Dal','Fenugreek Seeds','Salt','Oil'],
     allergens:[],
-    keywords:['crispy','south indian','breakfast','healthy','light','classic','traditional','simple','rice','fermented','nashta','morning','tiffin','hot']
+    keywords:['crispy','south indian','breakfast','healthy','light','classic','traditional','simple','rice','fermented','nashta','morning','tiffin','hot'],
+    pairs:['coffee','masala-chai']
   },
   {
     id:'coffee',
@@ -1096,7 +1163,8 @@ const MENU = [
     nutrition:{calories:'90 kcal',protein:'3g',carbs:'10g',fiber:'0g',fat:'4g',sodium:'50mg'},
     ingredients:['Filter Coffee Powder','Chicory','Milk','Sugar','Water'],
     allergens:['Dairy'],
-    keywords:['hot','south indian','strong','kaapi','morning','caffeine','traditional','decoction','frothy','warm','wake up','energy','filter kaapi']
+    keywords:['hot','south indian','strong','kaapi','morning','caffeine','traditional','decoction','frothy','warm','wake up','energy','filter kaapi'],
+    pairs:['plain-dosa']
   },
   {
     id:'masala-chai',
@@ -1118,7 +1186,8 @@ const MENU = [
     nutrition:{calories:'80 kcal',protein:'2g',carbs:'12g',fiber:'0g',fat:'3g',sodium:'30mg'},
     ingredients:['Assam Tea Leaves','Milk','Ginger','Cardamom','Cinnamon','Cloves','Sugar'],
     allergens:['Dairy'],
-    keywords:['hot','tea','ginger','adrak','elaichi','spiced','morning','cutting chai','indian tea','warm','comfort','doodh','kadak']
+    keywords:['hot','tea','ginger','adrak','elaichi','spiced','morning','cutting chai','indian tea','warm','comfort','doodh','kadak'],
+    pairs:['plain-dosa','gulab-jamun']
   },
   {
     id:'paneer-tikka',
@@ -1140,7 +1209,8 @@ const MENU = [
     nutrition:{calories:'290 kcal',protein:'18g',carbs:'8g',fiber:'2g',fat:'21g',sodium:'380mg'},
     ingredients:['Paneer','Yogurt','Capsicum','Onion','Tandoori Masala','Ginger-Garlic','Lemon','Mint Chutney'],
     allergens:['Dairy'],
-    keywords:['smoky','grilled','tandoor','cottage cheese','bbq','barbecue','appetizer','north indian','spicy','starter','hot','kebab','tikka','protein','healthy']
+    keywords:['smoky','grilled','tandoor','cottage cheese','bbq','barbecue','appetizer','north indian','spicy','starter','hot','kebab','tikka','protein','healthy'],
+    pairs:['butter-naan','cola']
   },
   {
     id:'chicken-biryani',
@@ -1162,7 +1232,8 @@ const MENU = [
     nutrition:{calories:'450 kcal',protein:'28g',carbs:'52g',fiber:'3g',fat:'14g',sodium:'680mg'},
     ingredients:['Basmati Rice','Chicken','Onion','Yogurt','Saffron','Biryani Masala','Ghee','Mint','Coriander','Bay Leaf'],
     allergens:['Dairy'],
-    keywords:['rice','dum','hyderabadi','mughlai','aromatic','saffron','non veg','meat','spicy','hot','lunch','dinner','filling','heavy','protein','famous','popular']
+    keywords:['rice','dum','hyderabadi','mughlai','aromatic','saffron','non veg','meat','spicy','hot','lunch','dinner','filling','heavy','protein','famous','popular'],
+    pairs:['cola','gulab-jamun']
   },
   {
     id:'butter-naan',
@@ -1184,7 +1255,8 @@ const MENU = [
     nutrition:{calories:'260 kcal',protein:'7g',carbs:'38g',fiber:'2g',fat:'9g',sodium:'340mg'},
     ingredients:['Maida','Yogurt','Yeast','Sugar','Salt','Butter','Nigella Seeds','Coriander'],
     allergens:['Dairy','Gluten'],
-    keywords:['bread','tandoor','roti','indian bread','fluffy','soft','hot','side dish','accompaniment','fresh','baked','warm','dal','curry']
+    keywords:['bread','tandoor','roti','indian bread','fluffy','soft','hot','side dish','accompaniment','fresh','baked','warm','dal','curry'],
+    pairs:['paneer-tikka']
   },
   {
     id:'gulab-jamun',
@@ -1206,7 +1278,8 @@ const MENU = [
     nutrition:{calories:'310 kcal',protein:'5g',carbs:'48g',fiber:'0g',fat:'12g',sodium:'90mg'},
     ingredients:['Khoya','Maida','Sugar','Rose Water','Cardamom','Ghee','Pistachio','Saffron'],
     allergens:['Dairy','Gluten','Nuts'],
-    keywords:['sweet','dessert','mithai','festive','warm','fried','syrup','rose','celebration','indian sweet','meetha','party','occasion','traditional','gulaab']
+    keywords:['sweet','dessert','mithai','festive','warm','fried','syrup','rose','celebration','indian sweet','meetha','party','occasion','traditional','gulaab'],
+    pairs:['masala-chai']
   }
 ];
 
@@ -1225,10 +1298,25 @@ const CONFIG = {
 const RESTAURANT_NAME = CONFIG.name;
 
 // ===== SPLASH & URL PARAMS =====
+// Detect a reload triggered by AR exit — skip the splash entirely so the
+// user lands straight back on their dish instead of watching the intro again.
+let AR_RETURN = false;
+try{
+  AR_RETURN = sessionStorage.getItem('arReturn') === '1';
+  if(AR_RETURN) sessionStorage.removeItem('arReturn');
+}catch(_){}
+if(AR_RETURN) document.getElementById('splash').classList.add('hide');
+
 window.addEventListener('load',()=>{
   const params = new URLSearchParams(window.location.search);
   const dishId = params.get('dish');
 
+  if(AR_RETURN){
+    // Dish restore is instant: hash case handled by restoreFromHash below,
+    // QR param case handled here.
+    if(dishId && !openDish(dishId)) clearDishUrl();
+    return;
+  }
   if(dishId){
     // Direct dish from QR code
     setTimeout(()=>{
@@ -1275,6 +1363,14 @@ function renderMenu(cat){
   if(activeFilters.has('above200'))   items = items.filter(d => d.price > 200);
   if(activeFilters.has('bestseller')) items = items.filter(d => d.tags && d.tags.some(t => t.includes('Bestseller') || t.includes('Popular')));
 
+  // Exclude-allergen filters ("no:Dairy" etc.)
+  activeFilters.forEach(f => {
+    if(f.startsWith('no:')){
+      const a = f.slice(3);
+      items = items.filter(d => !(d.allergens || []).includes(a));
+    }
+  });
+
   // Apply sort
   if(currentSort === 'price-low')  items.sort((a,b) => a.price - b.price);
   if(currentSort === 'price-high') items.sort((a,b) => b.price - a.price);
@@ -1303,6 +1399,7 @@ function renderMenu(cat){
           ? `<img src="${dish.thumbnail}" alt="${dish.name}" loading="lazy">`
           : `<div style="font-size:3.5rem">${dish.emoji}</div>`}
         ${dish.hasAR ? '<div class="ar-tag">&#10024; 3D AR</div>' : ''}
+        ${dish.special ? `<div class="chef-badge">&#128104;&#8205;&#127859; Chef's Special</div>` : ''}
         <div class="veg-badge ${dish.veg?'veg':'non-veg'}"></div>
       </div>
       <div class="card-body">
@@ -1360,6 +1457,24 @@ function closeFilterSheet(){
   document.getElementById('filterOverlay').classList.remove('open');
   document.body.style.overflow = '';
 }
+
+// Build the "Exclude Allergens" section from actual MENU data — must run
+// BEFORE the click handlers below are bound so its chips get wired too.
+(function buildAllergenFilters(){
+  const all = [...new Set(MENU.flatMap(d => d.allergens || []))].sort();
+  if(!all.length) return;
+  const sheet  = document.querySelector('.filter-sheet');
+  const footer = sheet && sheet.querySelector('.filter-footer');
+  if(!sheet || !footer) return;
+  const sec = document.createElement('div');
+  sec.className = 'filter-section';
+  sec.innerHTML = `
+    <div class="filter-section-title">&#9888;&#65039; Exclude Allergens</div>
+    <div class="filter-options" data-group="allergens">
+      ${all.map(a => `<div class="filter-opt" data-filter="no:${a}">&#128683; ${a}</div>`).join('')}
+    </div>`;
+  sheet.insertBefore(sec, footer);
+})();
 
 // Handle filter option clicks inside sheet
 document.querySelectorAll('.filter-opt[data-filter]').forEach(opt => {
@@ -1440,6 +1555,8 @@ document.querySelectorAll('.cat-tab').forEach(tab=>{
 let currentDish = null;
 
 let modelLoaded = false;
+let closeCleanupTimer = null;  // pending closeModal teardown (cancelled if a dish reopens fast)
+let dishHistoryPushed = false; // true when openDish pushed a history entry for the back button
 
 function clearDishUrl(){
   try{
@@ -1461,6 +1578,10 @@ function resetNutritionStrip(){
 function openDish(id){
   const dish = MENU.find(d=>d.id===id);
   if(!dish) return false;
+  // Cancel any pending teardown from a just-closed modal — otherwise its
+  // 400ms timeout fires after this dish opens and nulls currentDish,
+  // leaving the 3D/AR/share buttons dead.
+  if(closeCleanupTimer){ clearTimeout(closeCleanupTimer); closeCleanupTimer = null; }
   currentDish = dish;
   modelLoaded = false;
 
@@ -1482,7 +1603,9 @@ function openDish(id){
     emojiContainer.innerHTML = `<span style="font-size:4rem">${dish.emoji}</span>`;
   }
 
-  document.getElementById('modalTags').innerHTML = dish.tags.map(t=>`<div class="modal-tag">${t}</div>`).join('');
+  document.getElementById('modalTags').innerHTML =
+    (dish.special ? `<div class="modal-tag special-tag">&#128104;&#8205;&#127859; Chef's Special</div>` : '') +
+    dish.tags.map(t=>`<div class="modal-tag">${t}</div>`).join('');
   document.getElementById('modalSpecs').innerHTML = dish.specs.map(s=>`
     <div class="modal-spec">
       <div class="modal-spec-icon">${s.icon}</div>
@@ -1490,6 +1613,28 @@ function openDish(id){
       <div class="modal-spec-value">${s.value}</div>
     </div>
   `).join('');
+
+  // "Goes well with" pairing chips (upsell)
+  const pairsEl = document.getElementById('modalPairs');
+  if(pairsEl){
+    const pairs = (dish.pairs || []).map(pid => MENU.find(d => d.id === pid)).filter(Boolean);
+    if(pairs.length){
+      pairsEl.className = 'pairs-wrap';
+      pairsEl.innerHTML = `
+        <div class="pairs-label">&#129309; Goes Well With</div>
+        <div class="pairs-list">
+          ${pairs.map(p => `
+            <div class="pair-chip" onclick="openDish('${p.id}')">
+              ${p.thumbnail ? `<img src="${p.thumbnail}" alt="${p.name}">` : `<span class="pair-emoji">${p.emoji}</span>`}
+              <span class="pair-name">${p.name}</span>
+              <span class="pair-price">&#8377;${p.price}</span>
+            </div>`).join('')}
+        </div>`;
+    } else {
+      pairsEl.className = '';
+      pairsEl.innerHTML = '';
+    }
+  }
 
   // Render nutrition on info tab
   const infoStrip = document.getElementById('nutritionInfoStrip');
@@ -1539,11 +1684,17 @@ function openDish(id){
 
   document.getElementById('modal').classList.add('open');
   document.body.style.overflow = 'hidden';
+  // Jumping dish→dish via pairing chips: start at the top of the new dish
+  const mc = document.querySelector('.modal-content');
+  if(mc) mc.scrollTop = 0;
 
   // Persist dish ID in URL hash so a page reload (after AR) lands back here.
+  // pushState (not replaceState) so the Android back button/gesture closes
+  // the modal instead of leaving the site.
   try{
     if(location.hash !== '#dish=' + dish.id){
-      history.replaceState(null, '', '#dish=' + dish.id);
+      history.pushState(null, '', '#dish=' + dish.id);
+      dishHistoryPushed = true;
     }
   }catch(_){}
 
@@ -1756,6 +1907,21 @@ function loadModel(){
     // Small timeout so dimensions are ready
     setTimeout(()=>positionHotspots(mv), 50);
   });
+  // Failed/corrupt GLB — without this the spinner sits at 0% forever
+  mv.addEventListener('error',()=>{
+    window.__arLog && window.__arLog('model load ERROR', currentDish && currentDish.model);
+    if(arCheckInterval){ clearInterval(arCheckInterval); arCheckInterval = null; }
+    arSessionActive = false;
+    const loader = document.getElementById('modelLoader');
+    if(loader){
+      loader.style.display = 'flex';
+      loader.innerHTML = `
+        <div style="font-size:2rem">&#9888;&#65039;</div>
+        <div style="font-size:.9rem;color:#fff;font-weight:600;margin-top:10px">Couldn't load 3D model</div>
+        <div style="font-size:.7rem;color:rgba(255,255,255,.45);margin-top:4px">Check your internet connection</div>
+        <button onclick="retryModel()" style="margin-top:14px;padding:10px 24px;border:none;border-radius:10px;background:linear-gradient(135deg,#c9a84c,#a07830);color:#1a1208;font-weight:700;font-size:.8rem;cursor:pointer;font-family:'DM Sans',sans-serif">&#8635; Retry</button>`;
+    }
+  });
   // Authoritative AR session tracking via model-viewer's own events.
   // This covers BOTH WebXR (in-page AR) and Scene Viewer (external app),
   // and doesn't rely on visibilitychange timing which is unreliable.
@@ -1770,23 +1936,43 @@ function loadModel(){
       // Reload — the dish hash preserves context.
       mv.dataset.wasInAR = '0';
       window.__arLog && window.__arLog('ar-status EXIT → reloading');
+      try{ sessionStorage.setItem('arReturn','1'); }catch(_){}
       setTimeout(()=>{ location.reload(); }, 150);
     }
   });
 }
 
-function closeModal(){
+function retryModel(){
+  modelLoaded = false;
+  loadModel();
+}
+
+function closeModal(fromHistory){
   document.getElementById('modal').classList.remove('open');
   document.body.style.overflow = '';
-  // Clear dish URL state so reload doesn't auto-open after the user closes it.
-  clearDishUrl();
+  // Keep the back stack clean. If openDish pushed an entry, consume it via
+  // history.back() (the popstate handler sees the modal already closed and
+  // does nothing). When invoked FROM popstate, the browser already moved
+  // back — just make sure no dish state lingers in the URL.
+  if(fromHistory){
+    dishHistoryPushed = false;
+  } else if(dishHistoryPushed && /^#dish=/.test(location.hash)){
+    dishHistoryPushed = false;
+    try{ history.back(); }catch(_){ clearDishUrl(); }
+  } else {
+    // Entry not ours (direct #dish= link, or post-AR-reload) — don't back()
+    // out of the site; just strip the URL state.
+    dishHistoryPushed = false;
+    clearDishUrl();
+  }
   // Clear any pending AR activation interval & watchdog
   if(arCheckInterval){ clearInterval(arCheckInterval); arCheckInterval = null; }
   if(arWatchdog){ clearTimeout(arWatchdog); arWatchdog = null; }
   arSessionActive = false;
   pendingReset    = false;
   // Destroy model & free WebGL memory
-  setTimeout(()=>{
+  closeCleanupTimer = setTimeout(()=>{
+    closeCleanupTimer = null;
     disposeModelViewer();
     const v = document.getElementById('modalViewer');
     if(v) v.innerHTML = '';
@@ -1800,7 +1986,8 @@ function closeModal(){
 // User tapped "Start AR" in instruction modal — close it and launch AR
 function proceedToAR(){
   const dontShow = document.getElementById('arDontShow').checked;
-  if(dontShow) localStorage.setItem('arInstructionDismissed','1');
+  // localStorage can throw in private browsing / some in-app webviews
+  if(dontShow){ try{ localStorage.setItem('arInstructionDismissed','1'); }catch(_){} }
   document.getElementById('arInstruction').classList.remove('open');
   // Small delay for close animation, then launch AR skipping the modal
   setTimeout(()=>activateAR(true), 200);
@@ -1820,6 +2007,19 @@ let arWatchdog = null;
 function isAndroid(){ return /Android/i.test(navigator.userAgent); }
 function isIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent); }
 
+// Small toast used for AR/model error feedback
+function showToast(msg, color){
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.92);color:'+(color||'#fff')+';padding:12px 20px;border-radius:12px;font-size:.8rem;z-index:9999;max-width:85vw;text-align:center;line-height:1.4;border:1px solid rgba(201,168,76,.3)';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(()=>{
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity .3s';
+    setTimeout(()=>toast.remove(), 300);
+  }, 3500);
+}
+
 // Direct Scene Viewer launch — fires the Android intent immediately without
 // waiting for model-viewer to boot / load the GLB in the web page. Scene
 // Viewer fetches the GLB itself from the same URL (hits HTTP cache on repeat).
@@ -1838,14 +2038,31 @@ function launchSceneViewerDirect(modelUrl, dishName){
     '#Intent;scheme=https;package=com.google.android.googlequicksearchbox;' +
     'action=android.intent.action.VIEW;' +
     'S.browser_fallback_url=' + fallback + ';end;';
+  // Watchdog: in-app browsers (WhatsApp/Instagram/Facebook) block intent://
+  // silently. If the page is still visible ~1.6s after firing, the launch
+  // failed — undo AR state (otherwise the next app-switch triggers a bogus
+  // "returned from AR" full reload) and tell the user what to do.
+  if(arWatchdog) clearTimeout(arWatchdog);
+  arWatchdog = setTimeout(()=>{
+    arWatchdog = null;
+    if(!document.hidden){
+      arSessionActive = false;
+      window.__arLog && window.__arLog('SceneViewer intent BLOCKED (in-app browser?)');
+      showToast('AR can\'t open in this browser. Tap the ⋮ menu and choose "Open in Chrome"');
+    }
+  }, 1600);
   location.href = intent;
 }
 
 function activateAR(skipInstruction){
   window.__arLog && window.__arLog('activateAR called', skipInstruction?'(skipped instruction)':'');
 
-  // Show first-time instruction modal unless user dismissed it
-  if(!skipInstruction && localStorage.getItem('arInstructionDismissed') !== '1'){
+  // Show first-time instruction modal unless user dismissed it.
+  // localStorage can throw in private browsing / some in-app webviews —
+  // never let that kill the AR button.
+  let instructionDismissed = false;
+  try{ instructionDismissed = localStorage.getItem('arInstructionDismissed') === '1'; }catch(_){}
+  if(!skipInstruction && !instructionDismissed){
     document.getElementById('arInstruction').classList.add('open');
     return;
   }
@@ -1881,6 +2098,7 @@ function activateAR(skipInstruction){
       } else if(attempts > 20){
         clearInterval(arCheckInterval); arCheckInterval = null;
         arSessionActive = false;
+        showToast('3D model is taking too long to load — check your connection and try again');
       }
     },500);
     return;
@@ -1918,6 +2136,8 @@ function showArExitHint(){
 document.addEventListener('visibilitychange',()=>{
   window.__arLog && window.__arLog('visibilitychange', 'arSessionActive='+arSessionActive);
   if(document.hidden){
+    // Tab actually hid — AR launch succeeded, cancel the blocked-intent watchdog
+    if(arWatchdog){ clearTimeout(arWatchdog); arWatchdog = null; }
     // Non-AR tab hiding: free GPU immediately so the browser can safely freeze us.
     // During AR launch/return, keep the model intact until the foreground handler reloads.
     if(!arSessionActive) freeGpuResources();
@@ -1945,6 +2165,7 @@ document.addEventListener('visibilitychange',()=>{
   // lands back on the same dish as if nothing happened.
   if(wasAR){
     window.__arLog && window.__arLog('RELOADING after AR return');
+    try{ sessionStorage.setItem('arReturn','1'); }catch(_){}
     location.reload();
     return;
   }
@@ -1987,10 +2208,23 @@ const observer = new IntersectionObserver((entries)=>{
 },{threshold:0.1});
 document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 
-// ===== CLOSE MODAL ON BACK =====
+// ===== CLOSE MODAL ON BACK / REOPEN ON FORWARD =====
 window.addEventListener('popstate',()=>{
-  if(document.getElementById('modal').classList.contains('open')){
-    closeModal();
+  const modalOpen = document.getElementById('modal').classList.contains('open');
+  const m = location.hash.match(/^#dish=([\w-]+)/);
+  if(modalOpen && !m){
+    closeModal(true);
+  } else if(!modalOpen && m){
+    // Forward button (or back to a dish state) — reopen it
+    openDish(m[1]);
+    return;
+  }
+  // Modal closed, no dish hash: strip a leftover ?dish= (QR entry point)
+  // so a manual reload doesn't unexpectedly re-open the dish.
+  if(!m){
+    try{
+      if(new URLSearchParams(location.search).has('dish')) clearDishUrl();
+    }catch(_){}
   }
 });
 
@@ -2051,6 +2285,44 @@ async function shareDish(){
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + shareUrl)}`, '_blank');
   }
 }
+
+// ===== WAITER CALL =====
+// Table number arrives via QR (?table=5) and survives AR-exit reloads via
+// sessionStorage. Without a table number the message is generic.
+let tableNo = '';
+try{
+  const t = new URLSearchParams(location.search).get('table') || sessionStorage.getItem('tableNo') || '';
+  if(/^[\w-]{1,10}$/.test(t)){
+    tableNo = t;
+    sessionStorage.setItem('tableNo', t);
+  }
+}catch(_){}
+
+function callWaiter(){
+  const msg = tableNo
+    ? `\u{1F514} Table ${tableNo}: Please send a waiter.`
+    : '\u{1F514} Please send a waiter to my table.';
+  window.open('https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ===== TODAY'S SPECIAL BANNER (data-driven) =====
+// Populated from the dish marked special:true in MENU — price changes in one
+// place only. Banner hides itself if no dish is marked special.
+(function initSpecialBanner(){
+  const banner = document.querySelector('.special-banner');
+  if(!banner) return;
+  const sp = MENU.find(d => d.special);
+  if(!sp){ banner.style.display = 'none'; return; }
+  const off = sp.oldPrice ? Math.round((1 - sp.price / sp.oldPrice) * 100) : 0;
+  banner.setAttribute('onclick', `openDish('${sp.id}')`);
+  const dishEl  = banner.querySelector('.special-dish');
+  const priceEl = banner.querySelector('.special-price');
+  if(dishEl) dishEl.textContent = sp.name;
+  if(priceEl) priceEl.innerHTML =
+    (sp.oldPrice ? `<span class="special-old">&#8377;${sp.oldPrice}</span>` : '') +
+    `<span class="special-new">&#8377;${sp.price}</span>` +
+    (off ? `<span class="special-off">${off}% OFF</span>` : '');
+})();
 
 // ===== HERO PARTICLES =====
 // Lightweight CSS-animated golden particles — ~18 particles, no canvas, no GPU load
